@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.example.cc.iocontrolapplication.usercenter.UserActivity">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#FFF">
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:padding="10dp">
+            <TextView
+                android:id="@+id/userimage_string"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="头像"
+                android:layout_gravity="center"
+                android:textSize="17dp"/>
+            <LinearLayout
+                android:id="@+id/userimage_button"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="right"
+                android:padding="5dp">
+                <ImageView
+                    android:id="@+id/userimage_value"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:adjustViewBounds="false"
+                    android:cropToPadding="false"
+                    android:src="@drawable/avatar"/>
+            </LinearLayout>
+        </LinearLayout>
+        <View  android:layout_height="2px"
+            android:layout_width="fill_parent"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:background="#fafafa"
+            />
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:padding="10dp">
+            <TextView
+                android:id="@+id/username_string"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="昵称"
+                android:gravity="center_vertical"
+                android:textSize="17dp"/>
+
+            <LinearLayout
+                android:id="@+id/username_button"
+                android:layout_width="fill_parent"
+                android:layout_height="match_parent"
+                android:gravity="right">
+
+                <TextView
+                    android:id="@+id/username_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical|right"
+                    android:text="CC"/>
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/arrow"
+                    android:gravity="center_vertical|right"/>
+            </LinearLayout>
+        </LinearLayout>
+        <View  android:layout_height="2px"
+            android:layout_width="fill_parent"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:background="#fafafa"
+            />
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:padding="10dp">
+            <TextView
+                android:id="@+id/IdCard_string"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="身份认证"
+                android:gravity="center_vertical"
+                android:textSize="17dp"/>
+            <LinearLayout
+                android:id="@+id/IdCard_button"
+                android:layout_width="fill_parent"
+                android:layout_height="match_parent"
+                android:gravity="right">
+
+                <TextView
+                    android:id="@+id/IdCard_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical|right"
+                    android:text="未实名"/>
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/arrow"
+                    android:gravity="center_vertical|right"/>
+            </LinearLayout>
+        </LinearLayout>
+        <View  android:layout_height="2px"
+            android:layout_width="fill_parent"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:background="#fafafa"
+            />
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:padding="10dp">
+            <TextView
+                android:id="@+id/userphonenumber_string"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="手机号"
+                android:gravity="center_vertical"
+                android:textSize="17dp"/>
+
+            <LinearLayout
+                android:id="@+id/userphonenumber_button"
+                android:layout_width="fill_parent"
+                android:layout_height="match_parent"
+                android:gravity="right">
+
+                <TextView
+                    android:id="@+id/userphonenumber_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical|right"
+                    android:text="13556712512"/>
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/arrow"
+                    android:gravity="center_vertical|right"/>
+            </LinearLayout>
+        </LinearLayout>
+        <View  android:layout_height="2px"
+            android:layout_width="fill_parent"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:background="#fafafa"
+            />
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:padding="10dp">
+
+            <TextView
+                android:id="@+id/useremailnumber_string"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:text="邮箱"
+                android:textSize="17dp" />
+            <LinearLayout
+                android:id="@+id/useremailnumber_button"
+                android:layout_width="fill_parent"
+                android:layout_height="match_parent"
+                android:gravity="right">
+
+                <TextView
+                    android:id="@+id/useremailnumber_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical|right"
+                    android:text="1194714670@qq.com" />
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/arrow"
+                    android:gravity="center_vertical|right"/>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:background="#FFF"
+        android:orientation="horizontal"
+        android:paddingBottom="10dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="10dp">
+
+        <TextView
+            android:id="@+id/isAutoPay_string"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:text="免密付款"
+            android:textSize="17dp" />
+
+        <LinearLayout
+            android:id="@+id/isAutoPay_button"
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:gravity="right">
+
+            <TextView
+                android:id="@+id/isAutoPay_value"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical|right"
+                android:text="未开启" />
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:gravity="center_vertical|right"
+                android:src="@drawable/arrow" />
+        </LinearLayout>
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:background="#FFF"
+        android:orientation="horizontal"
+        android:paddingBottom="10dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="10dp">
+
+        <TextView
+            android:id="@+id/Face_string"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:text="人脸识别"
+            android:textSize="17dp" />
+
+        <LinearLayout
+            android:id="@+id/Face_button"
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:gravity="right">
+
+            <TextView
+                android:id="@+id/Face_value"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical|right"
+                android:text="未开启" />
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:gravity="center_vertical|right"
+                android:src="@drawable/arrow" />
+        </LinearLayout>
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:background="#FFF"
+        android:orientation="horizontal"
+        android:paddingBottom="10dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="10dp">
+
+        <TextView
+            android:id="@+id/OpenService_string"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:text="已开的应用服务"
+            android:textSize="17dp" />
+
+        <LinearLayout
+            android:id="@+id/OpenService"
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:gravity="right">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:gravity="center_vertical|right"
+                android:src="@drawable/arrow" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/exit_login"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:background="#FFF"
+        android:orientation="horizontal"
+        android:paddingBottom="10dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="10dp"
+        android:gravity="center">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="退 出 登 录"
+            android:textSize="17dp" />
+
+    </LinearLayout>
+</ScrollView>

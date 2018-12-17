@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.cc.iocontrolapplication">
+    <!-- To auto-complete the email text field in the login form with the user's emails -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity
+            android:name=".main.LoadActivity"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".login.LoginActivity"
+            android:label="@string/app_name">
+        </activity>
+
+        <activity
+            android:name=".main.IOIndex"
+            android:label="@string/app_name">
+        </activity>
+        <activity
+            android:name=".login.RegisterActivity"
+            android:label="@string/app_name">
+        </activity>
+        <activity
+            android:name=".login.ForgetActivity"
+            android:label="@string/app_name">
+        </activity>
+        <activity
+            android:name=".usercenter.UserActivity"
+            android:label="@string/app_name">
+        </activity>
+        <activity
+            android:name=".index.IndexActivity"
+            android:label="@string/app_name">
+        </activity>
+        <activity
+        android:name=".information.InformationActivity"
+        android:label="@string/app_name">
+        </activity>
+        <activity
+            android:name=".usercenter.EditMessageActivity"
+            android:label="@string/app_name">
+        </activity>
+        <activity
+            android:name=".FunctionService.FunctionServiceActivity"
+            android:label="@string/app_name">
+        </activity>
+
+    </application>
+
+</manifest>

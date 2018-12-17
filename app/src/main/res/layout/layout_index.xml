@@ -1,0 +1,22 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="160dp"
+        android:background="@drawable/loginbackground"
+        android:gravity="right">
+    <ImageView
+        android:src="@drawable/logo"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_marginRight="50dp"
+        android:alpha="0.6"/>
+    </LinearLayout>
+    <include layout="@layout/layout_function" />
+    <include layout="@layout/layout_service_funtion" />
+    <include
+        android:id="@+id/editor"
+        layout="@layout/layout_editor" />
+</LinearLayout>
