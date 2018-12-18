@@ -47,7 +47,8 @@
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:id="@+id/register_number_view">
 
                 <AutoCompleteTextView
                     android:id="@+id/register_number"
@@ -78,23 +79,25 @@
                     android:alpha="0.8"
                     android:background="@drawable/shape"
                     android:text="获取验证码"
-                    android:textSize="13dp"
+                    android:textSize="12dp"
+                    android:padding="1dp"
                     tools:layout_marginTop="-3dp" />
             </LinearLayout>
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:id="@+id/register_input_number"
+                android:visibility="gone">
             <EditText
                 android:id="@+id/register_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:singleLine="true"
-                android:text="请输入密码"
+                android:hint="请输入密码"
                 android:imeActionId="6"
                 android:imeOptions="actionNext"
                 android:inputType="textPassword"
-                android:visibility="gone"
                 android:maxLines="1" />
             </android.support.design.widget.TextInputLayout>
 

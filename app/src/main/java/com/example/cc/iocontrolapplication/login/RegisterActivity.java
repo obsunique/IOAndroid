@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -58,7 +59,8 @@ public class RegisterActivity extends AppCompatActivity {
 
     // UI references.
     private AutoCompleteTextView mNumberView;
-    private View mInputPassword;
+
+    private TextInputLayout mInputPassword;
     private EditText mPasswordView;
 
     private View mProgressView;
@@ -72,6 +74,8 @@ public class RegisterActivity extends AppCompatActivity {
 
     private Button mRegisterSignInButton;
     private CountDownTimerUtils countDownTimerUtils;
+
+    private String number;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,10 +85,10 @@ public class RegisterActivity extends AppCompatActivity {
         mRegisterFormView = findViewById(R.id.register_form);
         mProgressView = findViewById(R.id.register_progress);
 
-        // Set up the login form.
+
         mNumberView = (AutoCompleteTextView) findViewById(R.id.register_number);
-        //populateAutoComplete();
-        mInputPassword=(View)findViewById(R.id.input_password);
+
+        mInputPassword=(TextInputLayout)findViewById(R.id.register_input_number);
 
         mPasswordView = (EditText) findViewById(R.id.register_password);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -105,7 +109,7 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if(mRegisterSignInButton.getText().toString().equals("完成")){
-                        attemptLogin();
+                    attemptLogin();
                 }else{
                     View focusView = null;
                     if(TextUtils.isEmpty(mNumberView.getText().toString())){
@@ -140,13 +144,14 @@ public class RegisterActivity extends AppCompatActivity {
             public void onClick(View view) {
 
                 View focusView = null;
-                String phonenumber=mNumberView.getText().toString();
-                Log.e("-------***2---result---",!TextUtils.isEmpty(phonenumber)+" "+isMobileNumber(phonenumber));
-                if(isMobileNumber(phonenumber)&&!TextUtils.isEmpty(phonenumber)){
+                number=mNumberView.getText().toString();
+                Log.e("-------***2---result---",!TextUtils.isEmpty(number)+" "+isMobileNumber(number));
+                if(isMobileNumber(number)&&!TextUtils.isEmpty(number)){
+
                     countDownTimerUtils.start();
                     JSONObject json = new JSONObject();
                     try {
-                        json.put("userphone",phonenumber);
+                        json.put("userphone",number);
                     }catch (Exception e) {
                         mNumberView.setError(getString(R.string.error_invalid_number));
                         focusView = mNumberView;
@@ -163,7 +168,6 @@ public class RegisterActivity extends AppCompatActivity {
                     focusView = mNumberView;
                     focusView.requestFocus();
                 }
-
             }
         });
 
@@ -179,83 +183,39 @@ public class RegisterActivity extends AppCompatActivity {
 
     }
 
-
-    /**
-     * Callback received when a permissions request has been completed.
-
-     @Override
-     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-     @NonNull int[] grantResults) {
-     if (requestCode == REQUEST_READ_CONTACTS) {
-     if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-     populateAutoComplete();
-     }
-     }
-     }
-     */
-
-    /**
-     * Attempts to sign in or register the account specified by the login form.
-     * If there are form errors (invalid email, missing fields, etc.), the
-     * errors are presented and no actual login attempt is made.
-     */
     private void attemptLogin() {
         if (mAuthTask != null) {
             return;
         }
 
-        // Reset errors.
-        mNumberView.setError(null);
-        mPasswordView.setError(null);
-
-        // Store values at the time of the login attempt.
-        String number = mNumberView.getText().toString();
         String password = mPasswordView.getText().toString();
-
-        boolean cancel = false;
         View focusView = null;
-
-        // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
+        if (TextUtils.isEmpty(password) && !isPasswordValid(password)) {
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
-            cancel = true;
-        }else if (TextUtils.isEmpty(number)) {
-            mNumberView.setError(getString(R.string.error_field_required));
-            focusView = mNumberView;
-            cancel = true;
-        } else if (!isMobileNumber(number)) {
+            focusView.requestFocus();
+            return;
+        }
+
+        JSONObject json = new JSONObject();
+        try {
+            json.put("userphone",number);
+            json.put("userpassword",mPasswordView.getText().toString());
+        }catch (Exception e) {
             mNumberView.setError(getString(R.string.error_invalid_number));
             focusView = mNumberView;
-            cancel = true;
-        }
-
-        if (cancel) {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.聚焦错误的地方
             focusView.requestFocus();
-        } else {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
-            JSONObject json = new JSONObject();
-            try {
-                json.put("userphone",mNumberView.getText().toString());
-                json.put("userpassword",mPasswordView.getText().toString());
-            }catch (Exception e) {
-                mNumberView.setError(getString(R.string.error_invalid_number));
-                focusView = mNumberView;
-                focusView.requestFocus();
-            }
-            Log.e("-------***---json---",json.toString());
-            String url="http://47.107.248.227:8080/android/Login/register";
-
-            Intent intent=new Intent();
-            intent.setClass(RegisterActivity.this,IOIndex.class);
-
-            showProgress(true);
-            mAuthTask = new UserLoginTask(url,json,intent);
-            mAuthTask.execute((Void) null);
         }
+        Log.e("-------***---json---",json.toString());
+        String url="http://47.107.248.227:8080/android/Login/register";
+
+        Intent intent=new Intent();
+        intent.setClass(RegisterActivity.this,IOIndex.class);
+
+        showProgress(true);
+        mAuthTask = new UserLoginTask(url,json,intent);
+        mAuthTask.execute((Void) null);
+
     }
     //判断手机
     public boolean isMobileNumber(String mobiles) {
@@ -264,22 +224,15 @@ public class RegisterActivity extends AppCompatActivity {
         return mobiles.matches(telRegex);
     }
 
-
-
     private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
-        return password.length() > 6;
+        return password.length() >= 6;
     }
 
     /**
-     * Shows the progress UI and hides the login form.
      * 转圈
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     private void showProgress(final boolean show) {
-        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-        // for very easy animations. If available, use these APIs to fade-in
-        // the progress spinner.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
             //获得android定义的短片动画时间
             int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
@@ -303,8 +256,6 @@ public class RegisterActivity extends AppCompatActivity {
                 }
             });
         } else {
-            // The ViewPropertyAnimator APIs are not available, so simply show
-            // and hide the relevant UI components.
             mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
             mRegisterFormView.setVisibility(show ? View.GONE : View.VISIBLE);
         }
@@ -313,10 +264,7 @@ public class RegisterActivity extends AppCompatActivity {
     public void setCode(String code){
         this.code=code;
     }
-    /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
-     */
+
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
         private final JSONObject json;
@@ -337,10 +285,7 @@ public class RegisterActivity extends AppCompatActivity {
         }
         @Override
         protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-
             try {
-                // Simulate network access.
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
                 return false;
@@ -350,7 +295,6 @@ public class RegisterActivity extends AppCompatActivity {
             JSONObject result = PayHttpUtils.post(url,json.toString(),null,null);
             Log.e("-------***1---result---",result+"");
             if(result!=null){
-
                 Log.e("-------***2---result---",result.toString());
                 try {
                     if(mRegisterSignInButton.getText().toString().equals("下一步"))
@@ -362,12 +306,9 @@ public class RegisterActivity extends AppCompatActivity {
                 }catch (Exception e){
                     return false;
                 }
-
             }
-            // TODO: register the new account here.
             return false;
         }
-
         @Override
         protected void onPostExecute(final Boolean success) {
             mAuthTask = null;
@@ -379,7 +320,7 @@ public class RegisterActivity extends AppCompatActivity {
                     //保存登录状态
                     SharedPrefUtility.setParam(RegisterActivity.this, SharedPrefUtility.IS_LOGIN, true);
                     //保存登录个人信息
-                    SharedPrefUtility.setParam(RegisterActivity .this, SharedPrefUtility.LOGIN_DATA, userid);
+                    SharedPrefUtility.setParam(RegisterActivity .this, SharedPrefUtility.UserId, userid);
 
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
@@ -399,4 +340,3 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
 }
-

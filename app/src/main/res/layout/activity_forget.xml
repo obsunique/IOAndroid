@@ -48,7 +48,8 @@
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:id="@+id/forget_number_view">
 
                 <AutoCompleteTextView
                     android:id="@+id/forget_number"
@@ -78,9 +79,10 @@
                     android:layout_height="33dp"
                     android:layout_gravity="center"
                     android:alpha="0.8"
-                    android:textSize="13dp"
+                    android:textSize="12dp"
                     android:background="@drawable/shape"
                     android:text="获取验证码"
+                    android:padding="1dp"
                     tools:layout_marginTop="-3dp" />
             </LinearLayout>
             <LinearLayout
@@ -97,7 +99,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:singleLine="true"
-                        android:text="请输入密码"
+                        android:hint="请输入密码"
                         android:imeActionId="6"
                         android:imeOptions="actionNext"
                         android:inputType="textPassword"
@@ -112,7 +114,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:singleLine="true"
-                        android:text="请再次输入密码"
+                        android:hint="请再次输入密码"
                         android:imeActionId="6"
                         android:imeOptions="actionUnspecified"
                         android:inputType="textPassword"

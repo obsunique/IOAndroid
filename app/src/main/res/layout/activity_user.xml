@@ -8,6 +8,10 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         android:background="#FFF">
         <LinearLayout
@@ -71,7 +75,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:gravity="center_vertical|right"
-                    android:text="CC"/>
+                    android:text="正在加载"/>
 
                 <ImageView
                     android:layout_width="20dp"
@@ -111,7 +115,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:gravity="center_vertical|right"
-                    android:text="未实名"/>
+                    android:text="正在加载"/>
 
                 <ImageView
                     android:layout_width="20dp"
@@ -152,7 +156,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:gravity="center_vertical|right"
-                    android:text="13556712512"/>
+                    android:text="正在加载"/>
 
                 <ImageView
                     android:layout_width="20dp"
@@ -193,7 +197,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:gravity="center_vertical|right"
-                    android:text="1194714670@qq.com" />
+                    android:text="正在加载" />
 
                 <ImageView
                     android:layout_width="20dp"
@@ -243,7 +247,6 @@
                 android:src="@drawable/arrow" />
         </LinearLayout>
     </LinearLayout>
-
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -330,7 +333,8 @@
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
         android:paddingTop="10dp"
-        android:gravity="center">
+        android:gravity="center"
+        android:layout_marginBottom="5dp">
 
         <TextView
             android:layout_width="wrap_content"
@@ -338,6 +342,8 @@
             android:gravity="center"
             android:text="退 出 登 录"
             android:textSize="17dp" />
+
+    </LinearLayout>
 
     </LinearLayout>
 </ScrollView>

@@ -183,7 +183,7 @@ public class LoginActivity extends AppCompatActivity {
                 }catch (Exception e) {}
 
             if(json==null){
-                Toast.makeText(LoginActivity.this,"系统错误",Toast.LENGTH_SHORT).show();
+                Toast.makeText(LoginActivity.this,"系统错误1",Toast.LENGTH_SHORT).show();
             }
             showProgress(true);
             mAuthTask = new UserLoginTask(json,url);
@@ -205,7 +205,7 @@ public class LoginActivity extends AppCompatActivity {
     //密码大于6位
     private boolean isPasswordValid(String password) {
         //TODO: Replace this with your own logic
-        return password.length() > 6;
+        return password.length() >= 6;
     }
 
     private void setToastEorrer(View view){
@@ -284,8 +284,10 @@ public class LoginActivity extends AppCompatActivity {
             if(result!=null){
                 try {
                     userid=result.getString("flag");
+                    if(userid.compareTo("0")>0){
                     Log.e("-------***3---result---", result.getString("flag"));
                     return true;
+                    }
                 }catch (Exception e){
                     return false;
                 }

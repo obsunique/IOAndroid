@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -26,35 +27,12 @@ import com.example.cc.iocontrolapplication.utils.PayHttpUtils;
 
 import org.json.JSONObject;
 
-/**
- * A login screen that offers login via email/password.
- */
+
 public class ForgetActivity extends AppCompatActivity {
 
-    /**
-     * Id to identity READ_CONTACTS permission request.
-     * 权限请求
-     */
-    private static final int REQUEST_READ_CONTACTS = 0;
-
-    /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     *
-     *包含已知用户名和密码的虚拟身份验证存储。
-     * todo:连接到一个真正的认证系统后删除。
-
-     private static final String[] DUMMY_CREDENTIALS = new String[]{
-     "foo@example.com:hello", "bar@example.com:world"
-     };
-     */
-    /**
-     * Keep track of the login task to ensure we can cancel it if requested.
-     * 跟踪登录任务，以确保如果需要，我们可以取消它。
-     */
     private UserLoginTask mAuthTask = null;
 
-    // UI references.
+    private TextInputLayout mforgetNumberView;
     private AutoCompleteTextView mNumberView;
     private View mInputPassword;
     private EditText mPasswordView;
@@ -69,6 +47,8 @@ public class ForgetActivity extends AppCompatActivity {
     private TextView mForgetCode;
     private String code;
 
+    private String number;
+
     private Button mForginSignInButton;
 
     private CountDownTimerUtils countDownTimerUtils;
@@ -76,9 +56,8 @@ public class ForgetActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_forget);
-        // Set up the login form.
+
         mNumberView = (AutoCompleteTextView) findViewById(R.id.forget_number);
-        //populateAutoComplete();
         mInputPassword=(View)findViewById(R.id.input_password);
 
         mPasswordView = (EditText) findViewById(R.id.forget_password);
@@ -106,7 +85,7 @@ public class ForgetActivity extends AppCompatActivity {
             }
         });
         mForgetCode=(TextView)findViewById(R.id.forget_code);
-
+        mforgetNumberView=(TextInputLayout)findViewById(R.id.forget_number_view);
 
         mForginSignInButton= (Button) findViewById(R.id.forget_button);
         mForginSignInButton.setOnClickListener(new OnClickListener() {
@@ -139,6 +118,7 @@ public class ForgetActivity extends AppCompatActivity {
                         focusView = mForgetCode;
                         focusView.requestFocus();
                     }else if(code.equals(mForgetCode.getText().toString())){
+                        mforgetNumberView.setVisibility(View.GONE);
                         mNumberView.setVisibility(View.GONE);
                         mForgetCode.setVisibility(View.GONE);
                         mForgetSendButton.setVisibility(View.GONE);
@@ -159,9 +139,8 @@ public class ForgetActivity extends AppCompatActivity {
             public void onClick(View view) {
 
                 View focusView = null;
-                String phonenumber=mNumberView.getText().toString();
-                Log.e("-------***2---result---",!TextUtils.isEmpty(phonenumber)+" "+isMobileNumber(phonenumber));
-                if(isMobileNumber(phonenumber)&&!TextUtils.isEmpty(phonenumber)){
+                number=mNumberView.getText().toString();
+                if(isMobileNumber(number)&&!TextUtils.isEmpty(number)){
                     countDownTimerUtils.start();
                     JSONObject json = new JSONObject();
                     try {
@@ -173,7 +152,6 @@ public class ForgetActivity extends AppCompatActivity {
                     }
                     Log.e("-------***---json---",json.toString());
                     String url="http://47.107.248.227:8080/android/Login/sendCode";
-
 
                     mAuthTask = new UserLoginTask(url,json);
                     mAuthTask.execute((Void) null);
@@ -205,6 +183,7 @@ public class ForgetActivity extends AppCompatActivity {
         mForgetLastText.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+                mforgetNumberView.setVisibility(View.VISIBLE);
                 mNumberView.setVisibility(View.VISIBLE);
                 mForgetCode.setVisibility(View.VISIBLE);
                 mForgetSendButton.setVisibility(View.VISIBLE);
@@ -216,75 +195,16 @@ public class ForgetActivity extends AppCompatActivity {
         });
     }
 
-
-    /**
-     * Callback received when a permissions request has been completed.
-
-     @Override
-     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-     @NonNull int[] grantResults) {
-     if (requestCode == REQUEST_READ_CONTACTS) {
-     if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-     populateAutoComplete();
-     }
-     }
-     }
-     */
-
-    /**
-     * Attempts to sign in or register the account specified by the login form.
-     * If there are form errors (invalid email, missing fields, etc.), the
-     * errors are presented and no actual login attempt is made.
-     */
     private void attemptLogin() {
         if (mAuthTask != null) {
             return;
         }
-
-        // Reset errors.
-        mNumberView.setError(null);
-        mPasswordView.setError(null);
-        mAgainPasswordView.setError(null);
-        // Store values at the time of the login attempt.
-        String number = mNumberView.getText().toString();
         String password = mPasswordView.getText().toString();
-        String againpassword=mAgainPasswordView.getText().toString();
-        boolean cancel = false;
         View focusView = null;
-
-        // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordView;
-            cancel = true;
-        }
-        if (!TextUtils.isEmpty(againpassword) && !isPasswordValid(againpassword)&&!mAgainPasswordView.getText().toString().equals(mPasswordView.getText().toString())) {
-            mAgainPasswordView.setError(getString(R.string.error_invalid_againpassword));
-            focusView = mAgainPasswordView;
-            cancel = true;
-        }
-        // Check for a valid email address.
-        if (TextUtils.isEmpty(number)) {
-            mNumberView.setError(getString(R.string.error_field_required));
-            focusView = mNumberView;
-            cancel = true;
-        } else if (!isMobileNumber(number)) {
-            mNumberView.setError(getString(R.string.error_invalid_number));
-            focusView = mNumberView;
-            cancel = true;
-        }
-
-        if (cancel) {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.聚焦错误的地方
-            focusView.requestFocus();
-        } else {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
             JSONObject json = new JSONObject();
             try {
-                json.put("userphone",mNumberView.getText().toString());
-                json.put("userpassword",mPasswordView.getText().toString());
+                json.put("userphone",number);
+                json.put("userpassword",password);
             }catch (Exception e) {
                 mNumberView.setError(getString(R.string.error_invalid_number));
                 focusView = mNumberView;
@@ -299,7 +219,7 @@ public class ForgetActivity extends AppCompatActivity {
             showProgress(true);
             mAuthTask = new UserLoginTask(url,json,intent);
             mAuthTask.execute((Void) null);
-        }
+
     }
     //判断手机
     public boolean isMobileNumber(String mobiles) {
@@ -309,17 +229,14 @@ public class ForgetActivity extends AppCompatActivity {
     }
 
     private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
         return email.contains("@");
     }
 
     private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
-        return password.length() > 6;
+        return password.length() >= 6;
     }
 
     /**
-     * Shows the progress UI and hides the login form.
      * 转圈
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
@@ -360,17 +277,13 @@ public class ForgetActivity extends AppCompatActivity {
     public void setCode(String code){
         this.code=code;
     }
-    /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
-     */
+
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
         private final JSONObject json;
         private final String url;
         private Intent intent;
         private JSONObject result;
-
 
         UserLoginTask(String url,JSONObject json) {
             this.url=url;
@@ -385,7 +298,6 @@ public class ForgetActivity extends AppCompatActivity {
         @Override
         protected Boolean doInBackground(Void... params) {
             // TODO: attempt authentication against a network service.
-
             try {
                 // Simulate network access.
                 Thread.sleep(2000);
@@ -393,22 +305,18 @@ public class ForgetActivity extends AppCompatActivity {
                 return false;
             }
             //String users="[{\"username\":"+mNumberView.getText().toString()+",\"password\":"+mPasswordView.getText().toString()+"}]";
-
             result = PayHttpUtils.post(url,json.toString(),null,null);
             Log.e("-------***1---result---",result+"");
             if(result!=null){
-
                 Log.e("-------***2---result---",result.toString());
                 try {
                     if(mForginSignInButton.getText().toString().equals("下一步"))
-                        setCode(result.getString("flag"));
-
+                        setCode(result.getString("code"));
                     Log.e("-------***3---result---", result.getString("flag"));
                     return true;
                 }catch (Exception e){
                     return false;
                 }
-
             }
             // TODO: register the new account here.
             return false;
@@ -418,16 +326,14 @@ public class ForgetActivity extends AppCompatActivity {
         protected void onPostExecute(final Boolean success) {
             mAuthTask = null;
             showProgress(false);
-
             if (success) {
                 if(intent!=null){
-
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
                 }
             } else {
-                mPasswordView.setError("系统错误");
-                mAgainPasswordView.setError("系统错误");
+                mPasswordView.setError("系统错误1");
+                mAgainPasswordView.setError("系统错误2");
                 mPasswordView.requestFocus();
             }
         }
