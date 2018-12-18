@@ -2,7 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.cc.iocontrolapplication">
     <!-- To auto-complete the email text field in the login form with the user's emails -->
+
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -56,6 +61,9 @@
             android:name=".FunctionService.FunctionServiceActivity"
             android:label="@string/app_name">
         </activity>
+        <activity
+            android:name=".faceactivity.PreviewActivity"
+            android:label="@string/app_name" />
 
     </application>
 

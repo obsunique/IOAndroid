@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/IOControlApplication.iml" filepath="$PROJECT_DIR$/IOControlApplication.iml" />
+      <module fileurl="file://$PROJECT_DIR$/IOAndroid.iml" filepath="$PROJECT_DIR$/IOAndroid.iml" />
+      <module fileurl="file://C:\Users\Administrator\AndroidStudioProjects\IOAndroid\IOControlApplication.iml" filepath="C:\Users\Administrator\AndroidStudioProjects\IOAndroid\IOControlApplication.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
