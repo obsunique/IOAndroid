@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import com.example.cc.iocontrolapplication.FunctionService.FunctionServiceActivity;
 import com.example.cc.iocontrolapplication.R;
+import com.example.cc.iocontrolapplication.faceactivity.PreviewActivity;
 import com.example.cc.iocontrolapplication.login.LoginActivity;
 import com.example.cc.iocontrolapplication.utils.PayHttpUtils;
 import com.example.cc.iocontrolapplication.utils.SharedPrefUtility;
@@ -188,6 +189,7 @@ public class UserActivity extends Activity implements View.OnClickListener {
                 break;
             case R.id.Face_button:
                 //打开人脸识别
+                faceactivity();
                 break;
             case R.id.OpenService:
                 openFunctionService();
@@ -213,6 +215,12 @@ public class UserActivity extends Activity implements View.OnClickListener {
     //打开图册选照片
 
     //打开人脸识别
+    public  void faceactivity(){
+        Intent intent=new Intent();
+        intent.setClass(UserActivity.this, PreviewActivity.class);
+        intent.putExtra("userid",userid);
+        startActivity(intent);
+    }
 
     //打开服务
     public void openFunctionService(){

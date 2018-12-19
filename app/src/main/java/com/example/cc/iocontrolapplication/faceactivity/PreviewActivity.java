@@ -1,6 +1,7 @@
 package com.example.cc.iocontrolapplication.faceactivity;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -11,12 +12,16 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
+import android.widget.AutoCompleteTextView;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 
@@ -33,6 +38,9 @@ import com.example.cc.iocontrolapplication.faceutil.DrawHelper;
 import com.example.cc.iocontrolapplication.faceutil.camera.CameraHelper;
 import com.example.cc.iocontrolapplication.faceutil.camera.CameraListener;
 import com.example.cc.iocontrolapplication.facewidget.FaceRectView;
+import com.example.cc.iocontrolapplication.login.ForgetActivity;
+import com.example.cc.iocontrolapplication.main.IOIndex;
+import com.example.cc.iocontrolapplication.usercenter.UserActivity;
 
 
 import java.util.ArrayList;
@@ -55,6 +63,9 @@ public class PreviewActivity extends AppCompatActivity implements ViewTreeObserv
      */
     private View previewView;
     private FaceRectView faceRectView;
+    private ImageView face_back;
+    private ImageView face_list;
+    private AutoCompleteTextView autoCompleteTextView;
 
     private static final int ACTION_REQUEST_PERMISSIONS = 0x001;
     /**
@@ -69,6 +80,8 @@ public class PreviewActivity extends AppCompatActivity implements ViewTreeObserv
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_preview);
+        ActionBar actionBar=getSupportActionBar();
+        if(actionBar!=null) actionBar.hide();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             WindowManager.LayoutParams attributes = getWindow().getAttributes();
@@ -90,10 +103,25 @@ public class PreviewActivity extends AppCompatActivity implements ViewTreeObserv
 
         previewView = findViewById(R.id.texture_preview);
         faceRectView = findViewById(R.id.face_rect_view);
+        face_back = findViewById(R.id.face_back);
+        face_back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
+            }
+        });
+        face_list = findViewById(R.id.face_list);
+        autoCompleteTextView = findViewById(R.id.autoCompleteTextView);
+
         //在布局结束后才做初始化操作
         previewView.getViewTreeObserver().addOnGlobalLayoutListener(this);
     }
-
+    @Override
+    public void onBackPressed() {
+        Intent intent=new Intent();
+        setResult(0,intent);
+        finish();
+    }
     private void initEngine() {
 
         faceEngine = new FaceEngine();
@@ -109,21 +137,21 @@ public class PreviewActivity extends AppCompatActivity implements ViewTreeObserv
     }
 
     private void unInitEngine() {
-
         if (afCode == 0) {
             afCode = faceEngine.unInit();
             Log.i(TAG, "unInitEngine: " + afCode);
         }
     }
 
+
     @Override
     protected void onDestroy() {
+        super.onDestroy();
         if (cameraHelper != null) {
             cameraHelper.release();
             cameraHelper = null;
         }
         unInitEngine();
-        super.onDestroy();
     }
 
     private boolean checkPermissions(String[] neededPermissions) {
