@@ -10,7 +10,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -27,6 +26,7 @@ import android.widget.TextView;
 
 import com.example.cc.iocontrolapplication.R;
 import com.example.cc.iocontrolapplication.utils.PayHttpUtils;
+import com.example.cc.iocontrolapplication.utils.ToastDiag;
 
 import org.json.JSONObject;
 
@@ -92,12 +92,7 @@ public class EditMessageActivity extends AppCompatActivity implements View.OnCli
     }
     public void initLayout(){
         if(editId<0||userid<0){
-            AlertDialog alertDialog1 = new AlertDialog.Builder(this)
-                    .setTitle("提示")//标题
-                    .setMessage("网络连接错误")//内容
-                    .setIcon(R.mipmap.ic_launcher)//图标
-                    .create();
-            alertDialog1.show();
+            ToastDiag.warnDiag(EditMessageActivity.this,"网络连接错误");
         }else {
             backimageView=(ImageView) findViewById(R.id.actionbar_edit_button);
             titleText=(TextView) findViewById(R.id.actionbar_edit_title);
@@ -111,7 +106,8 @@ public class EditMessageActivity extends AppCompatActivity implements View.OnCli
                     titleText.setText("身份认证");;
                     break;
                 case 3:
-                    titleText.setText("更改手机号码");;
+                    titleText.setText("更改手机号码");
+                    serveText.setText("下一步");
                     break;
                 case 4:
                     titleText.setText("注册邮箱");;
@@ -162,7 +158,7 @@ public class EditMessageActivity extends AppCompatActivity implements View.OnCli
         String url="";
         switch (editId){
             case 1:
-                url="http://47.107.248.227:8080/android/User/updataUserPerfectMesaage";
+                url="http://47.107.248.227:8080/android/User/updataUserName";
                 break;
             case 2:
                 url="http://47.107.248.227:8080/android/User/updataUserPerfectMesaage";
@@ -213,12 +209,7 @@ public class EditMessageActivity extends AppCompatActivity implements View.OnCli
         String editOne=editText.getText().toString();
         String editsecond="";
         if(editId==0||userid==0){
-            AlertDialog alertDialog1 = new AlertDialog.Builder(this)
-                    .setTitle("提示")//标题
-                    .setMessage("网络连接错误")//内容
-                    .setIcon(R.mipmap.ic_launcher)//图标
-                    .create();
-            alertDialog1.show();
+            ToastDiag.warnDiag(EditMessageActivity.this,"网络连接错误");
             return;
         }
         if(editId==2)
@@ -231,8 +222,8 @@ public class EditMessageActivity extends AppCompatActivity implements View.OnCli
             editTextSecond.setError("请输入");
             View view=editTextSecond;
             view.requestFocus();
-        }else if(editsecond.length()==18&&editId==2){
-            editTextSecond.setError("身份证位数不够");
+        }else if(editsecond.length()!=18&&editId==2){
+            editTextSecond.setError("身份证位数需18位");
             View view=editTextSecond;
             view.requestFocus();
         } else {
@@ -240,27 +231,17 @@ public class EditMessageActivity extends AppCompatActivity implements View.OnCli
             try {
                 json.put("userid",userid);
                 json.put(jsonname,editOne);
-                if(userid==2) {
+                if(editId==2) {
                     json.put("useridcard", editsecond);
                     showProgress(true);
                 }
             }catch (Exception e) {
-                AlertDialog alertDialog1 = new AlertDialog.Builder(this)
-                        .setTitle("提示")//标题
-                        .setMessage("系统错误")//内容
-                        .setIcon(R.mipmap.ic_launcher)//图标
-                        .create();
-                alertDialog1.show();
+                ToastDiag.warnDiag(EditMessageActivity.this,"系统错误");
             }
             Log.e("-------***---json---",json.toString());
             String url=checkUrl(editId);
             if(url.equals("")){
-                AlertDialog alertDialog1 = new AlertDialog.Builder(this)
-                        .setTitle("提示")//标题
-                        .setMessage("系统错误")//内容
-                        .setIcon(R.mipmap.ic_launcher)//图标
-                        .create();
-                alertDialog1.show();
+                ToastDiag.warnDiag(EditMessageActivity.this,"系统错误");
                 return;
             }
             pushTask = new PushTask(url,json);
@@ -302,10 +283,11 @@ public class EditMessageActivity extends AppCompatActivity implements View.OnCli
         }
         @Override
         protected void onPostExecute(final Boolean success) {
-            showProgress(false);
+            if(editId==2)
+                showProgress(false);
             pushTask = null;
             if (success) {
-                onBackPressed();
+               onBackPressed();
             } else {
                 editText.setError("已存在");
                 View view=editText;
@@ -315,7 +297,8 @@ public class EditMessageActivity extends AppCompatActivity implements View.OnCli
         @Override
         protected void onCancelled() {
             pushTask = null;
-            showProgress(false);
+            if(editId==2)
+                showProgress(false);
         }
     }
 

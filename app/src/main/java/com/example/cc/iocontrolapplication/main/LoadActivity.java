@@ -20,6 +20,7 @@ public class LoadActivity extends Activity {
         super.onCreate(savedInstanceState);
         isLogin=(Boolean) SharedPrefUtility.getParam(LoadActivity.this, SharedPrefUtility.IS_LOGIN, false);
         Intent intent=new Intent();
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
         if(isLogin){
             intent.setClass(LoadActivity.this,IOIndex.class);
         }else

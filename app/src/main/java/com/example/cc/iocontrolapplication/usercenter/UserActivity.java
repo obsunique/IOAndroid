@@ -2,9 +2,12 @@ package com.example.cc.iocontrolapplication.usercenter;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
+import android.os.StrictMode;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -18,6 +21,7 @@ import com.example.cc.iocontrolapplication.faceactivity.PreviewActivity;
 import com.example.cc.iocontrolapplication.login.LoginActivity;
 import com.example.cc.iocontrolapplication.utils.PayHttpUtils;
 import com.example.cc.iocontrolapplication.utils.SharedPrefUtility;
+import com.example.cc.iocontrolapplication.utils.ToastDiag;
 
 import org.json.JSONObject;
 
@@ -27,7 +31,8 @@ import org.json.JSONObject;
 
 public class UserActivity extends Activity implements View.OnClickListener {
 
-    private Integer userid=11;
+    private Integer userid=12;
+    private LinearLayout userimageButton;
     private ImageView userimageValue;
     private LinearLayout usernameView,useridcardView,userphonenumberView,useremailnumberView,userisAutoPayView,userFaceView,userOpenServiceView;
     private TextView usernameString,useridcardString,userphonenumberString,useremailnumberString,userisAutoPayString,userFaceString,userOpenServiceString;
@@ -69,16 +74,19 @@ public class UserActivity extends Activity implements View.OnClickListener {
         }
 
     }
-    @Override
+    /*@Override
     protected void onResume() {
         super.onResume();
         //refreshData();//刷新数据
     }
-
+*/
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user);
-
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+            StrictMode.setVmPolicy(builder.build());
+        }
         refreshData();
         initLayout();
         initLayoutListener();
@@ -86,6 +94,7 @@ public class UserActivity extends Activity implements View.OnClickListener {
     }
     public void initLayout(){
 
+        userimageButton=(LinearLayout)findViewById(R.id.userimage_button);
         userimageValue=(ImageView)findViewById(R.id.userimage_value);
 
         usernameView=(LinearLayout)findViewById(R.id.username_button);
@@ -119,43 +128,51 @@ public class UserActivity extends Activity implements View.OnClickListener {
 
     }
     public void inDate(){
-    try{
-        JSONObject userperfectWithBLOBs=reultJson.getJSONObject("userperfectWithBLOBs");
-        JSONObject user=reultJson.getJSONObject("user");
-        Log.e("----******---eeee---",userperfectWithBLOBs.getString("useremail"));
+        try{
+            JSONObject userperfectWithBLOBs=reultJson.getJSONObject("userperfectWithBLOBs");
+            JSONObject user=reultJson.getJSONObject("user");
+            Log.e("----******---eeee---",userperfectWithBLOBs.getString("userfaceimage").equals("null")+"");
 
-        if(user.getString("username")!=null)
-            usernameValue.setText(user.getString("username"));
-        else
-            usernameValue.setText("前往设置");
+            if(!user.getString("username").equals("null"))
+                usernameValue.setText(user.getString("username"));
+            else
+                usernameValue.setText("前往设置");
 
-        if(userperfectWithBLOBs.getString("userrealname")!=null) {
-            useridcardValue.setText("已实名");
-        }else{
-            usernameValue.setText("未实名");
+            if(userperfectWithBLOBs.getString("userrealname").equals("null")) {
+                useridcardValue.setText("未实名");
+            }else{
+                SharedPrefUtility.setParam(UserActivity.this,userperfectWithBLOBs.getString("userrealname"),"");
+                SharedPrefUtility.setParam(UserActivity.this,userperfectWithBLOBs.getString("useridcard"),"");
+                useridcardValue.setText("已实名");
+            }
+
+            if(!user.getString("userphone").equals("null"))
+                userphonenumberValue.setText(user.getString("userphone"));
+            else{
+                SharedPrefUtility.setParam(UserActivity.this,user.getString("userphone"),"");
+                userphonenumberValue.setText("前往修改");
+            }
+
+
+            if(userperfectWithBLOBs.getString("useremail").equals("null"))
+                useremailnumberValue.setText("前往设置");
+            else
+                useremailnumberValue.setText(userperfectWithBLOBs.getString("useremail"));
+
+            if(userperfectWithBLOBs.getInt("isautopay")!=0)
+                userisAutoPayValue.setText("已开启");
+
+            if(userperfectWithBLOBs.getString("userfaceimage").equals("null"))
+                userFaceValue.setText("未开启");
+            else
+                userFaceValue.setText("已开启");
+        }catch (Exception e){
+            Log.e("----******---eeee---",e.toString());
         }
-
-        if(user.getString("userphone")!=null)
-            userphonenumberValue.setText(user.getString("userphone"));
-        else
-            userphonenumberValue.setText("前往修改");
-
-        if(userperfectWithBLOBs.getString("useremail")==null||userperfectWithBLOBs.getString("useremail").equals("null"))
-            useremailnumberValue.setText("前往设置");
-        else
-            useremailnumberValue.setText(userperfectWithBLOBs.getString("useremail"));
-
-        if(userperfectWithBLOBs.getInt("isautopay")!=0)
-            userisAutoPayValue.setText("已开启");
-
-        if(userperfectWithBLOBs.getString("userfaceimage")!=null)
-            userFaceValue.setText("已开启");
-    }catch (Exception e){
-        Log.e("----******---eeee---",e.toString());
-}
     }
     public void initLayoutListener(){
         userimageValue.setOnClickListener(this);
+        userimageButton.setOnClickListener(this);
         usernameView.setOnClickListener(this);
         useridcardView.setOnClickListener(this);
         userphonenumberView.setOnClickListener(this);
@@ -167,9 +184,13 @@ public class UserActivity extends Activity implements View.OnClickListener {
     }
     @Override
     public void onClick(View v) {
+        Intent intent=new Intent();
         switch (v.getId()) {
             case R.id.userimage_value:
-                //打开图片
+                intoImgPage(9,"userimg","");
+                break;
+            case R.id.userimage_button:
+                getPicFromAlbm();
                 break;
             case R.id.username_button:
                 intoEditPage(1,"username",usernameValue.getText().toString());
@@ -185,11 +206,13 @@ public class UserActivity extends Activity implements View.OnClickListener {
                 intoEditPage(4,"useremail",useremailnumberValue.getText().toString());
                 break;
             case R.id.isAutoPay_button:
-                //开启自动付款
+                intent.setClass(UserActivity.this, AvatarChoose.class);
+                startActivity(intent);
                 break;
             case R.id.Face_button:
                 //打开人脸识别
-                faceactivity();
+                intent.setClass(UserActivity.this, PreviewActivity.class);
+                startActivity(intent);
                 break;
             case R.id.OpenService:
                 openFunctionService();
@@ -197,11 +220,20 @@ public class UserActivity extends Activity implements View.OnClickListener {
             case R.id.exit_login:
                 exitLogin();
                 break;
+
             default:
                 break;
         }
     }
-
+    public void intoImgPage(int editId,String editString,String editValue){
+        Intent intent=new Intent();
+        intent.setClass(UserActivity.this,AvatarChoose.class);
+        intent.putExtra("userid",userid);
+        intent.putExtra("editId",editId);
+        intent.putExtra("editString",editString);
+        intent.putExtra("editValue",editValue);
+        startActivity(intent);
+    }
     public void intoEditPage(int editId,String editString,String editValue){
         Intent intent=new Intent();
         intent.setClass(UserActivity.this,EditMessageActivity.class);
@@ -215,12 +247,6 @@ public class UserActivity extends Activity implements View.OnClickListener {
     //打开图册选照片
 
     //打开人脸识别
-    public  void faceactivity(){
-        Intent intent=new Intent();
-        intent.setClass(UserActivity.this, PreviewActivity.class);
-        intent.putExtra("userid",userid);
-        startActivity(intent);
-    }
 
     //打开服务
     public void openFunctionService(){
@@ -286,12 +312,7 @@ public class UserActivity extends Activity implements View.OnClickListener {
             if (success) {
                 inDate();
             } else {
-                AlertDialog alertDialog1 = new AlertDialog.Builder(UserActivity.this)
-                        .setTitle("提示")//标题
-                        .setMessage("系统错误")//内容
-                        .setIcon(R.mipmap.ic_launcher)//图标
-                        .create();
-                alertDialog1.show();
+                ToastDiag.warnDiag(UserActivity.this,"系统错误");
                 return;
             }
         }
@@ -300,4 +321,65 @@ public class UserActivity extends Activity implements View.OnClickListener {
             pushTask = null;
         }
     }
+
+    //相册请求码
+    private static final int ALBUM_REQUEST_CODE = 1;
+    //剪裁请求码
+    private static final int CROP_REQUEST_CODE = 3;
+    /**
+     * 从相册获取图片
+     */
+    private void getPicFromAlbm() {
+        Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+        photoPickerIntent.setType("image/*");
+        Log.e("----*-1----","我来了");
+        getParent().startActivityForResult(photoPickerIntent, ALBUM_REQUEST_CODE);
+
+        Log.e("----*0----","我来了");
+    }
+
+    /**
+     * 裁剪图片
+     */
+    private void cropPhoto(Uri uri) {
+        Log.e("----*3----","我来了");
+        Intent intent = new Intent("com.android.camera.action.CROP");
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        intent.setDataAndType(uri, "image/*");
+        intent.putExtra("crop", "true");
+        intent.putExtra("aspectX", 1);
+        intent.putExtra("aspectY", 1);
+        intent.putExtra("outputX", 300);
+        intent.putExtra("outputY", 300);
+        intent.putExtra("return-data", true);
+        getParent().startActivityForResult(intent, CROP_REQUEST_CODE);
+    }
+
+    public void handleActivityResult(int requestCode, int resultCode, Intent intent) {
+        Log.e("----*1----",requestCode+"我来了");
+        switch (requestCode) {
+            case ALBUM_REQUEST_CODE:    //调用相册后返回
+                Log.e("----*1----",resultCode+"我来了"+RESULT_OK);
+                if (resultCode == RESULT_OK) {
+                    Uri uri = intent.getData();
+                    Log.e("----*----",uri+"");
+                    cropPhoto(uri);
+                }
+                break;
+            case CROP_REQUEST_CODE:     //调用剪裁后返回
+                Log.e("----*2----","我来了");
+                Bundle bundle = intent.getExtras();
+                if (bundle != null) {
+                    //在这里获得了剪裁后的Bitmap对象，可以用于上传
+                    Bitmap image = bundle.getParcelable("data");
+                    //设置到ImageView上
+                    userimageValue.setImageBitmap(image);
+                    //也可以进行一些保存、压缩等操作后上传
+//                    String path = saveImage("crop", image);
+                }
+                break;
+        }
+    }
+
 }

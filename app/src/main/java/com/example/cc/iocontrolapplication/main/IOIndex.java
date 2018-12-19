@@ -156,11 +156,13 @@ public class IOIndex extends Activity implements
         //View tab03 = mLayoutInflater.inflate(R.layout.activity_user, null);
 
         intentIndex=new Intent(IOIndex.this,IndexActivity.class);
-        View tab01=manager.startActivity("viewID",intentIndex).getDecorView();
+        View tab01=manager.startActivity("first",intentIndex).getDecorView();
+
         intentInformation=new Intent(IOIndex.this,InformationActivity.class);
-        View tab02=manager.startActivity("viewID",intentInformation).getDecorView();
+        View tab02=manager.startActivity("second",intentInformation).getDecorView();
+
         intentUser=new Intent(IOIndex.this,UserActivity.class);
-        View tab03=manager.startActivity("viewID",intentUser).getDecorView();
+        View tab03=manager.startActivity("third",intentUser).getDecorView();
 
 
         mViews.add(tab01);
@@ -236,6 +238,14 @@ public class IOIndex extends Activity implements
         mInformationImg.setImageResource(R.drawable.information_b);
         mIndexImg.setImageResource(R.drawable.index_b);
         mMysettingImg.setImageResource(R.drawable.mysetting_b);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        UserActivity sActivity = (UserActivity) manager.getActivity("third");
+        Log.e("----******----",requestCode+"我是谁"+resultCode);
+        sActivity.handleActivityResult(requestCode, resultCode, data);
     }
 
 }

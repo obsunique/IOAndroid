@@ -14,7 +14,9 @@ public class SharedPrefUtility {
     public static final String LOGIN_DATA="loginData";
     public static final String IS_LOGIN="isLogin";
     public static final String UserId="";
-
+    public static final String UserPhone="";
+    public static final String UserRealName="";
+    public static final String UserIdCard="";
 
 
     /**

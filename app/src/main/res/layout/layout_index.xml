@@ -1,8 +1,9 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
     <LinearLayout
+        android:id="@+id/top"
         android:layout_width="match_parent"
         android:layout_height="160dp"
         android:background="@drawable/loginbackground"
@@ -14,9 +15,23 @@
         android:layout_marginRight="50dp"
         android:alpha="0.6"/>
     </LinearLayout>
-    <include layout="@layout/layout_function" />
-    <include layout="@layout/layout_service_funtion" />
+    <include
+        android:id="@+id/one"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/top"
+        layout="@layout/layout_function" />
+    <include
+        android:id="@+id/two"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/one"
+        layout="@layout/layout_service_funtion" />
     <include
         android:id="@+id/editor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="2dp"
         layout="@layout/layout_editor" />
-</LinearLayout>
+</RelativeLayout>

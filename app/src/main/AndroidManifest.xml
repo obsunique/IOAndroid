@@ -9,6 +9,8 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/>
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -43,7 +45,8 @@
         </activity>
         <activity
             android:name=".usercenter.UserActivity"
-            android:label="@string/app_name">
+            android:label="@string/app_name"
+            android:launchMode="standard">
         </activity>
         <activity
             android:name=".index.IndexActivity"
@@ -58,12 +61,34 @@
             android:label="@string/app_name">
         </activity>
         <activity
-            android:name=".FunctionService.FunctionServiceActivity"
+        android:name=".FunctionService.FunctionServiceActivity"
+        android:label="@string/app_name">
+        </activity>
+        <activity
+            android:name=".FunctionService.PaymessageActivity"
+            android:label="@string/app_name">
+        </activity>
+        <activity
+            android:name=".FunctionService.FacepageActivity"
             android:label="@string/app_name">
         </activity>
         <activity
             android:name=".faceactivity.PreviewActivity"
             android:launchMode="singleTop" />
+
+        <activity
+            android:name=".usercenter.AvatarChoose"
+            android:label="@string/app_name">
+        </activity>
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="com.hansion.chosehead"
+            android:grantUriPermissions="true"
+            android:exported="false">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/filepath" />
+        </provider>
 
     </application>
 
