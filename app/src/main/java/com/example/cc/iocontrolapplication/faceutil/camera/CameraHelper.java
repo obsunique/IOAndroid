@@ -78,6 +78,7 @@ public class CameraHelper implements Camera.PreviewCallback {
             }
             if (mCamera == null) {
                 mCamera = Camera.open(mCameraId);
+                mCamera.setDisplayOrientation(90);
             }
             displayOrientation = getCameraOri(rotation);
             mCamera.setDisplayOrientation(displayOrientation);

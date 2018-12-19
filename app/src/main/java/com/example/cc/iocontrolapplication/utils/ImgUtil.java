@@ -12,7 +12,7 @@ import java.io.IOException;
 
 public class ImgUtil {
     //转码
-    private static String bitmapToBase64(Bitmap bitmap) {
+    public static String bitmapToBase64(Bitmap bitmap) {
         String result = null;
         ByteArrayOutputStream baos = null;
         try {

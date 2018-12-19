@@ -1,5 +1,7 @@
 package com.example.cc.iocontrolapplication.faceutil;
 
+import android.util.Log;
+
 import com.example.cc.iocontrolapplication.utils.PayHttpUtils;
 
 import org.json.JSONObject;
@@ -9,11 +11,16 @@ import org.json.JSONObject;
  */
 
 public class AipfaceUtil {
-    public final String baseurl = "http://47.107.248.227/Aipface/";
+    public final String baseurl = "http://47.107.248.227:8080/Aipface/";
     public JSONObject detect(String image)
     {
-        String baseimage64 = "{\"imagein\":" + image + "}";
-        return PayHttpUtils.post(baseurl+"detect",baseimage64,null,null);
+        JSONObject json = new JSONObject();
+        try {
+            json.put("imagein", image);
+        }catch (Exception e){}
+
+        JSONObject res = PayHttpUtils.post("http://47.107.248.227:8080/Aipface/detect",json.toString(),null,null);
+        return res;
     }
     public JSONObject addUser(String image,String group,String user,String userinfo)
     {

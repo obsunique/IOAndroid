@@ -6,6 +6,11 @@ import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.renderscript.Allocation;
+import android.renderscript.Element;
+import android.renderscript.RenderScript;
+import android.renderscript.ScriptIntrinsicYuvToRGB;
+import android.renderscript.Type;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -183,6 +188,46 @@ public class ImageUtil {
             bitmap = imageCrop(bitmap, new Rect(0, 0, width, height));
         }
         return bitmap;
+    }
+
+    public static Bitmap nv21ToBitmap(byte[] nv21, int width, int height,Context context){
+         RenderScript rs;
+         ScriptIntrinsicYuvToRGB yuvToRgbIntrinsic;
+         Type.Builder yuvType=null, rgbaType;
+         Allocation in=null, out=null;
+
+        rs = RenderScript.create(context);
+        yuvToRgbIntrinsic = ScriptIntrinsicYuvToRGB.create(rs, Element.U8_4(rs));
+
+        if (yuvType == null){
+            yuvType = new Type.Builder(rs, Element.U8(rs)).setX(nv21.length);
+            in = Allocation.createTyped(rs, yuvType.create(), Allocation.USAGE_SCRIPT);
+            rgbaType = new Type.Builder(rs, Element.RGBA_8888(rs)).setX(width).setY(height);
+            out = Allocation.createTyped(rs, rgbaType.create(), Allocation.USAGE_SCRIPT);
+        }
+
+        in.copyFrom(nv21);
+
+        yuvToRgbIntrinsic.setInput(in);
+        yuvToRgbIntrinsic.forEach(out);
+
+        Bitmap bmpout = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        out.copyTo(bmpout);
+
+        return bmpout;
+
+    }
+
+
+    public static Bitmap rotaingImageView(int angle , Bitmap bitmap) {
+        //旋转图片 动作
+        Matrix matrix = new Matrix();;
+        matrix.postRotate(angle);
+        System.out.println("angle2=" + angle);
+        // 创建新的图片
+        Bitmap resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0,
+                bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+        return resizedBitmap;
     }
 
 
