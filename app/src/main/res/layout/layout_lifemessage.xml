@@ -12,6 +12,10 @@
 
     </android.support.v7.widget.RecyclerView>
     -->
-    <include layout="@layout/layout_lifemessage_list_recycler"></include>
-    <include layout="@layout/layout_lifemessage_list_recycler"></include>
+    <include
+        android:id="@+id/openpage_one"
+        layout="@layout/layout_lifemessage_list_recycler"></include>
+    <include
+        android:id="@+id/openpage_two"
+        layout="@layout/layout_lifemessage_list_recycler"></include>
 </LinearLayout>

@@ -21,7 +21,6 @@ public class ToastDiag{
                 .setIcon(R.mipmap.logo)//图标
                 .setPositiveButton("entar", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-
                     }
                 })
                 .setNegativeButton("cencle", new DialogInterface.OnClickListener() {

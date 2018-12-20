@@ -11,12 +11,12 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -217,6 +217,7 @@ public class EditMessageActivity extends AppCompatActivity implements View.OnCli
     }
 
     public void phoneEvent(){
+        setEditTextEnable(editText,false);
         editText.setHint("手机号码");
         editCodeView.setVisibility(View.VISIBLE);
         serveText.setText("下一步");
@@ -229,6 +230,7 @@ public class EditMessageActivity extends AppCompatActivity implements View.OnCli
         editTextSecond.setHint("新手机号码");
     }
     public void emailEvent(){
+        setEditTextEnable(editText,false);
         editText.setHint("邮箱:");
         editCodeView.setVisibility(View.VISIBLE);
         serveText.setText("下一步");
@@ -293,20 +295,18 @@ public class EditMessageActivity extends AppCompatActivity implements View.OnCli
 
     }
 
+private void setEditTextEnable(EditText editText,boolean mode){
+        editText.setFocusable(mode);
+        editText.setFocusableInTouchMode(mode);
+        editText.setLongClickable(mode);
+        editText.setInputType(mode? InputType.TYPE_CLASS_TEXT:InputType.TYPE_NULL);
+}
 
 
-    //返回
-    public boolean  onOptionsItemSelected(MenuItem item){
-        if(item.getItemId()==android.R.id.home){
-            onBackPressed();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
     @Override
     public void onBackPressed() {
         Intent intent=new Intent();
-        //getParent().startActivityForResult(intent, 4);
+        Log.e("----***---","我返回了");
         setResult(4,intent);
         finish();
     }
@@ -361,7 +361,6 @@ public class EditMessageActivity extends AppCompatActivity implements View.OnCli
             if (editId == 2)
                 url = "http://47.107.248.227:8080/android/Login/sendCode";
             try {
-                json.put("userid",userid);
                 json.put(jsonname, editOne);
             } catch (Exception e) {
             }
@@ -378,7 +377,7 @@ public class EditMessageActivity extends AppCompatActivity implements View.OnCli
         String editOne=editText.getText().toString();
         String editsecond=editTextSecond.getText().toString();
         JSONObject json = new JSONObject();
-        //手机密码登录
+
         String url=checkUrl(editId);
         try {
             json.put("userid",userid);
@@ -406,22 +405,20 @@ public class EditMessageActivity extends AppCompatActivity implements View.OnCli
         String editsecond=editTextSecond.getText().toString();
         switch (editId){
             case 1:
-                SharedPrefUtility.setParam(EditMessageActivity.this,SharedPrefUtility.UserName,editOne);
+                SharedPrefUtility.setParam(SharedPrefUtility.UserName,editOne);
                 break;
             case 2:
-                SharedPrefUtility.setParam(EditMessageActivity.this,SharedPrefUtility.UserRealName,editOne);
-                SharedPrefUtility.setParam(EditMessageActivity.this,SharedPrefUtility.UserIdCard,editsecond);
+                SharedPrefUtility.setParam(SharedPrefUtility.UserRealName,editOne);
+                SharedPrefUtility.setParam(SharedPrefUtility.UserIdCard,editsecond);
                 break;
             case 3:
-                SharedPrefUtility.setParam(EditMessageActivity.this,SharedPrefUtility.UserPhone,editsecond);
+                SharedPrefUtility.setParam(SharedPrefUtility.UserPhone,editsecond);
                 break;
             case 4:
-                SharedPrefUtility.setParam(EditMessageActivity.this,SharedPrefUtility.UserEmail,editsecond);
+                SharedPrefUtility.setParam(SharedPrefUtility.UserEmail,editsecond);
                 break;
         }
     }
-
-
 
 
     public class PushTask extends AsyncTask<Void, Void, Boolean> {
@@ -457,7 +454,7 @@ public class EditMessageActivity extends AppCompatActivity implements View.OnCli
                         setSP(editId);
                         return true;
                     } else {
-                        ToastDiag.Toast(EditMessageActivity.this, "保存失败1");
+                        ToastDiag.Toast(EditMessageActivity.this, "保存失败");
                     }
                 } catch (Exception e) {
                     return false;
@@ -473,7 +470,7 @@ public class EditMessageActivity extends AppCompatActivity implements View.OnCli
                 if (serveText.getText().toString().equals("保存"))
                 onBackPressed();
             } else {
-                ToastDiag.Toast(EditMessageActivity.this,"保存失败2");
+                ToastDiag.Toast(EditMessageActivity.this,"保存失败");
             }
         }
         @Override

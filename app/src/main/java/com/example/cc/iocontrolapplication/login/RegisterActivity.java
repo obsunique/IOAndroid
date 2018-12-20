@@ -261,7 +261,7 @@ public class RegisterActivity extends AppCompatActivity {
         private final JSONObject json;
         private final String url;
         private Intent intent;
-        private  String userid;
+        private  Integer userid;
 
 
         UserLoginTask(String url,JSONObject json) {
@@ -292,8 +292,8 @@ public class RegisterActivity extends AppCompatActivity {
                         setCode(result.getString("code"));
                         return true;
                     } else {
-                        userid = result.getString("flag");
-                        if (userid.compareTo("0") > 0) {
+                        userid = Integer.parseInt(result.getString("flag"));
+                        if (userid> 0) {
                             Log.e("-------***3---result---", result.getString("flag"));
                             return true;
                         }
@@ -312,10 +312,11 @@ public class RegisterActivity extends AppCompatActivity {
             if (success) {
                 if(intent!=null) {
 
+
                     //保存登录状态
-                    SharedPrefUtility.setParam(RegisterActivity.this, SharedPrefUtility.IS_LOGIN, true);
+                    SharedPrefUtility.setParam(SharedPrefUtility.IS_LOGIN, (String)"true");
                     //保存登录个人信息
-                    SharedPrefUtility.setParam(RegisterActivity .this, SharedPrefUtility.UserId, userid);
+                    SharedPrefUtility.setParam(SharedPrefUtility.UserId, (Integer)userid);
 
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);

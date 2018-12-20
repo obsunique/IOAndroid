@@ -18,11 +18,15 @@ import com.example.cc.iocontrolapplication.FunctionService.FunctionServiceActivi
 import com.example.cc.iocontrolapplication.R;
 import com.example.cc.iocontrolapplication.faceactivity.PreviewActivity;
 import com.example.cc.iocontrolapplication.login.LoginActivity;
+import com.example.cc.iocontrolapplication.utils.ImgUtil;
 import com.example.cc.iocontrolapplication.utils.PayHttpUtils;
 import com.example.cc.iocontrolapplication.utils.SharedPrefUtility;
 import com.example.cc.iocontrolapplication.utils.ToastDiag;
 
 import org.json.JSONObject;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Created by cc on 2018/12/13.
@@ -30,8 +34,9 @@ import org.json.JSONObject;
 
 public class UserActivity extends Activity implements View.OnClickListener {
 
-    private Integer userid=12;
-    private String username,userphone,userrealname,useridcard,useremail;
+    private Integer userid;
+    private String userphone,useravatar,userface;
+    private String username,userrealname,useridcard,useremail;
 
     private LinearLayout userimageButton;
     private ImageView userimageValue;
@@ -44,20 +49,23 @@ public class UserActivity extends Activity implements View.OnClickListener {
     private PushTask pushTask;
 
     public void refreshData(){
-        Integer userid=(Integer) SharedPrefUtility.getParam(UserActivity.this, SharedPrefUtility.UserId, 0);
-
+        userid=(Integer) SharedPrefUtility.getParam(UserActivity.this, SharedPrefUtility.UserId, (Integer)0);
+        useravatar=(String) SharedPrefUtility.getParam(UserActivity.this, SharedPrefUtility.UserAvatar, (String)"");
         Log.e("-----userid----",userid+"");
-        /*
-        username=(String) SharedPrefUtility.getParam(UserActivity.this, SharedPrefUtility.UserName, "");
+        username=(String) SharedPrefUtility.getParam(UserActivity.this, SharedPrefUtility.UserName, (String)"");
+        Log.e("-----username----",username);
         userphone=(String) SharedPrefUtility.getParam(UserActivity.this, SharedPrefUtility.UserPhone, "");
-        userrealname=(String) SharedPrefUtility.getParam(UserActivity.this, SharedPrefUtility.UserRealName, "");
-        useridcard=(String) SharedPrefUtility.getParam(UserActivity.this, SharedPrefUtility.UserIdCard, "");
-        useremail=(String) SharedPrefUtility.getParam(UserActivity.this, SharedPrefUtility.UserEmail, "");
-*/
         Log.e("-----userphone----",userphone+"");
-        if(this.userid<1){
+        userrealname=(String) SharedPrefUtility.getParam(UserActivity.this, SharedPrefUtility.UserRealName, (String)"");
+        Log.e("-----userrealname----",userrealname);
+        useridcard=(String) SharedPrefUtility.getParam(UserActivity.this, SharedPrefUtility.UserIdCard, (String)"");
+        Log.e("-----useridcard----",useridcard);
+        useremail=(String) SharedPrefUtility.getParam(UserActivity.this, SharedPrefUtility.UserEmail, (String)"");
+        Log.e("-----useremail----",useremail);
+        userface=(String) SharedPrefUtility.getParam(UserActivity.this, SharedPrefUtility.UserFace, (String)"");
+        if(userid<1){
             ToastDiag.Toast(UserActivity.this,"请连接网络");
-        }else if(userphone==null){
+        }else if(userphone==null||userphone.equals("")){
             JSONObject json = new JSONObject();
             //手机密码登录
             String url="http://47.107.248.227:8080/android/User/checkUserPerfectMesaage";
@@ -69,14 +77,8 @@ public class UserActivity extends Activity implements View.OnClickListener {
         }else{
             setData();
         }
+    }
 
-    }
-    /*@Override
-    protected void onResume() {
-        super.onResume();
-        //refreshData();//刷新数据
-    }
-*/
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user);
@@ -97,21 +99,26 @@ public class UserActivity extends Activity implements View.OnClickListener {
             JSONObject user=reultJson.getJSONObject("user");
             Log.e("----******---eeee---",userperfectWithBLOBs.getString("userfaceimage").equals("null")+"");
 
+            if(!userperfectWithBLOBs.getString("userphoto").equals("null")){
+                SharedPrefUtility.setParam(SharedPrefUtility.UserName,userperfectWithBLOBs.getString("userphoto"));
+                userimageValue.setImageBitmap(ImgUtil.readImg("/sdcard/"+userperfectWithBLOBs.getString("userphoto")));
+            }
             if(!user.getString("username").equals("null")) {
-                SharedPrefUtility.setParam(UserActivity.this,SharedPrefUtility.UserName,user.getString("username"));
-                usernameValue.setText(user.getString("username"));
+                String name="(用户)"+user.getString("username");
+                SharedPrefUtility.setParam(SharedPrefUtility.UserName,name);
+                usernameValue.setText(name);
             }
 
             if(userperfectWithBLOBs.getString("userrealname").equals("null")) {
                 useridcardValue.setText("未实名");
             }else{
-                SharedPrefUtility.setParam(UserActivity.this,SharedPrefUtility.UserRealName,userperfectWithBLOBs.getString("userrealname"));
-                SharedPrefUtility.setParam(UserActivity.this,SharedPrefUtility.UserIdCard,userperfectWithBLOBs.getString("useridcard"));
+                SharedPrefUtility.setParam(SharedPrefUtility.UserRealName,userperfectWithBLOBs.getString("userrealname"));
+                SharedPrefUtility.setParam(SharedPrefUtility.UserIdCard,userperfectWithBLOBs.getString("useridcard"));
                 useridcardValue.setText("已实名");
             }
 
             if(!user.getString("userphone").equals("null")){
-                SharedPrefUtility.setParam(UserActivity.this,SharedPrefUtility.UserPhone,user.getString("userphone"));
+                SharedPrefUtility.setParam(SharedPrefUtility.UserPhone,user.getString("userphone"));
                 userphonenumberValue.setText(user.getString("userphone"));
             }
 
@@ -119,7 +126,7 @@ public class UserActivity extends Activity implements View.OnClickListener {
             if(userperfectWithBLOBs.getString("useremail").equals("null"))
                 useremailnumberValue.setText("前往设置");
             else {
-                SharedPrefUtility.setParam(UserActivity.this,SharedPrefUtility.UserEmail,user.getString("useremail"));
+                SharedPrefUtility.setParam(SharedPrefUtility.UserEmail,user.getString("useremail"));
                 useremailnumberValue.setText(userperfectWithBLOBs.getString("useremail"));
             }
             if(userperfectWithBLOBs.getInt("isautopay")!=0)
@@ -127,19 +134,35 @@ public class UserActivity extends Activity implements View.OnClickListener {
 
             if(userperfectWithBLOBs.getString("userfaceimage").equals("null"))
                 userFaceValue.setText("未开启");
-            else
+            else{
+                SharedPrefUtility.setParam(SharedPrefUtility.UserFace,userperfectWithBLOBs.getString("userfaceimage"));
                 userFaceValue.setText("已开启");
+            }
+
         }catch (Exception e){
             Log.e("----******---eeee---",e.toString());
         }
     }
     //从SP导入数据
     public void setData(){
+        if(!useravatar.equals(""))
+            userimageValue.setImageBitmap(ImgUtil.readImg("/sdcard/"+useravatar));
         usernameValue.setText(username);
-        if(userrealname!=null)
+        if(userrealname.equals(""))
+            useridcardValue.setText("未实名");
+        else{
             useridcardValue.setText("已实名");
+        }
         userphonenumberValue.setText(userphone);
-        useremailnumberValue.setText(useremail);
+        if(useremail.equals(""))
+            useremailnumberValue.setText("前往设置");
+        else
+            useremailnumberValue.setText(useremail);
+
+        if(userface.equals("")){
+            userFaceValue.setText("未开启");
+        }else
+            userFaceValue.setText("已开启");
     }
 
     public void initLayout(){
@@ -217,7 +240,11 @@ public class UserActivity extends Activity implements View.OnClickListener {
                 intoEditPage(3,"userphone",userphonenumberValue.getText().toString());
                 break;
             case R.id.useremailnumber_button:
-                intoEditPage(4,"useremail",useremailnumberValue.getText().toString());
+                ToastDiag.Toast(UserActivity.this,"不想暴露信息，用手机吧");
+                /*
+                if(useremailnumberValue.getText().toString().equals("前往设置"))
+                    intoEditPage(4,"useremail","");
+                intoEditPage(4,"useremail",useremailnumberValue.getText().toString());*/
                 break;
             case R.id.isAutoPay_button:
                 intent.setClass(UserActivity.this, AvatarChoose.class);
@@ -253,10 +280,11 @@ public class UserActivity extends Activity implements View.OnClickListener {
         Intent intent=new Intent();
         intent.setClass(UserActivity.this,AvatarChoose.class);
         intent.putExtra("userid",userid);
-        intent.putExtra("editId",editId);
-        intent.putExtra("editString",editString);
+        intent.putExtra("useravatar",useravatar);
+        intent.putExtra("userphone",userphone);
         intent.putExtra("editValue",editValue);
-        startActivity(intent);
+
+        getParent().startActivityForResult(intent,4);
     }
     public void intoEditPage(int editId,String editString,String editValue){
         Intent intent=new Intent();
@@ -265,7 +293,8 @@ public class UserActivity extends Activity implements View.OnClickListener {
         intent.putExtra("editId",editId);
         intent.putExtra("editString",editString);
         intent.putExtra("editValue",editValue);
-        startActivity(intent);
+        //startActivity(intent);
+        getParent().startActivityForResult(intent,4);
     }
 
 
@@ -280,14 +309,7 @@ public class UserActivity extends Activity implements View.OnClickListener {
     }
     //退出登录
     public void exitLogin(){
-        SharedPrefUtility.setParam(UserActivity.this, SharedPrefUtility.IS_LOGIN, false);
-        SharedPrefUtility.removeParam(UserActivity.this, SharedPrefUtility.LOGIN_DATA);
-        SharedPrefUtility.removeParam(UserActivity.this, SharedPrefUtility.UserId);
-        SharedPrefUtility.removeParam(UserActivity.this, SharedPrefUtility.UserName);
-        SharedPrefUtility.removeParam(UserActivity.this, SharedPrefUtility.UserPhone);
-        SharedPrefUtility.removeParam(UserActivity.this, SharedPrefUtility.UserRealName);
-        SharedPrefUtility.removeParam(UserActivity.this, SharedPrefUtility.UserIdCard);
-        SharedPrefUtility.removeParam(UserActivity.this, SharedPrefUtility.UserEmail);
+        SharedPrefUtility.removeAllParam();
         Intent intent=new Intent();
         intent.setClass(UserActivity.this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -319,9 +341,13 @@ public class UserActivity extends Activity implements View.OnClickListener {
             JSONObject result = httpUtils.post(url,json.toString(),null,null);
             Log.e("-------***1---result---",result+"");
             if(result!=null){
-
-
                 try {
+                    if(ChooseImg==1){
+                        if(Integer.parseInt(result.getString("flag"))>0) {
+                            return true;
+                        }
+                        return false;
+                    }
                     JSONObject mJsonArray=result.getJSONObject("userperfectWithBLOBs");
                     Log.e("-------***3---result---", mJsonArray.getString("userid"));
                     setReultJson(result);
@@ -338,9 +364,15 @@ public class UserActivity extends Activity implements View.OnClickListener {
         protected void onPostExecute(final Boolean success) {
             pushTask = null;
             if (success) {
+                if (ChooseImg==1){
+                    userimageValue.setImageBitmap(image);
+                    ImgUtil.savaImg(path,image);
+                    ChooseImg=0;
+                    return;
+                }
                 inDate();
             } else {
-                ToastDiag.Toast(UserActivity.this,"系统错误");
+                ToastDiag.Toast(UserActivity.this,"错误");
                 return;
             }
         }
@@ -353,7 +385,7 @@ public class UserActivity extends Activity implements View.OnClickListener {
     //相册请求码
     private static final int ALBUM_REQUEST_CODE = 1;
     //剪裁请求码
-    private static final int CROP_REQUEST_CODE = 3;
+    private static final int CROP_REQUEST_CODE = 2;
     /**
      * 从相册获取图片
      */
@@ -365,7 +397,9 @@ public class UserActivity extends Activity implements View.OnClickListener {
 
         Log.e("----*0----","我来了");
     }
-
+    private Bitmap image;
+    String path;
+    int ChooseImg=0;
     /**
      * 裁剪图片
      */
@@ -400,11 +434,34 @@ public class UserActivity extends Activity implements View.OnClickListener {
                 Bundle bundle = intent.getExtras();
                 if (bundle != null) {
                     //在这里获得了剪裁后的Bitmap对象，可以用于上传
-                    Bitmap image = bundle.getParcelable("data");
+                    image = bundle.getParcelable("data");
+                    ChooseImg=1;
                     //设置到ImageView上
-                    userimageValue.setImageBitmap(image);
+
                     //也可以进行一些保存、压缩等操作后上传
                     // String path = saveImage("crop", image);
+
+                    pushTask=null;
+                    JSONObject json=new JSONObject();
+                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");//获取当前时间
+                    Date date = new Date(System.currentTimeMillis());
+                    String adate=simpleDateFormat.format(date);
+                    path="/root/Turning/avatar/"+userphone+""+adate+".jpeg";
+
+                    String img=ImgUtil.bitmapToBase64(image);
+                    try{
+                        json.put("userid",userid);
+                        json.put("imgStr",img);//图片
+                        json.put("src","/root/Turning/avatar/");//路径
+                        json.put("imgname",userphone+""+adate+".jpeg");//名
+
+                    }catch (Exception e){
+                        ToastDiag.Toast(UserActivity.this,"系统错误");
+                        return;
+                    }
+                    String url="http://47.107.248.227:8080/android/uploadPicture";
+                    pushTask=new PushTask(url,json);
+                    pushTask.execute((Void)null);
                 }
                 break;
             case 4:

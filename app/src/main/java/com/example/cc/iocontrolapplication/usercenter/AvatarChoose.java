@@ -11,12 +11,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.cc.iocontrolapplication.R;
+import com.example.cc.iocontrolapplication.utils.ImgUtil;
 
 /**
  * Created by cc on 2018/12/18.
@@ -37,10 +37,10 @@ public class AvatarChoose extends AppCompatActivity implements View.OnClickListe
         private TextView titleText;
         private TextView serveText;
 
-        private String jsonname;
+
         private int userid;
-        private String editValue;
-        private int editId=0;
+        private String useravatar;
+        private String userphone;
 
         @Override
         protected void onCreate(Bundle savedInstanceState) {
@@ -70,9 +70,9 @@ public class AvatarChoose extends AppCompatActivity implements View.OnClickListe
     public void initData(){
         Intent intent=getIntent();
         userid=intent.getIntExtra("userid",-1);
-        editId=intent.getIntExtra("editId",0);
-        jsonname=intent.getStringExtra("editString");
-        editValue=intent.getStringExtra("editV-alue");
+        userphone=intent.getStringExtra("userphone");
+
+        useravatar=intent.getStringExtra("useravatar");
     }
         private void initView() {
             mHeader_iv = (ImageView) findViewById(R.id.mHeader_iv);
@@ -80,6 +80,9 @@ public class AvatarChoose extends AppCompatActivity implements View.OnClickListe
             titleText=(TextView) findViewById(R.id.actionbar_edit_title);
             serveText=(TextView) findViewById(R.id.actionbar_edit_serve);
 
+            if(!useravatar.equals("")){
+                mHeader_iv.setImageBitmap(ImgUtil.readImg("/sdcard/"+useravatar));
+            }
             titleText.setText("头像");
             serveText.setText("更换");
         }
@@ -96,23 +99,20 @@ public class AvatarChoose extends AppCompatActivity implements View.OnClickListe
                     onBackPressed();
                     break;
                 case R.id.actionbar_edit_serve:
-                    getPicFromAlbm();
+                    if(serveText.getText().toString().equals("保存")){
+                        ImgUtil.upload(AvatarChoose.this,userid,userphone,image);
+                    }else
+                        getPicFromAlbm();
                     break;
                 default:
                     break;
             }
         }
-    public boolean  onOptionsItemSelected(MenuItem item){
-        if(item.getItemId()==android.R.id.home){
-            onBackPressed();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
+
     @Override
     public void onBackPressed() {
         Intent intent=new Intent();
-        setResult(0,intent);
+        setResult(5,intent);
         finish();
     }
     /**
@@ -136,8 +136,14 @@ public class AvatarChoose extends AppCompatActivity implements View.OnClickListe
         intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
         intent.setDataAndType(uri, "image/*");
         intent.putExtra("crop", "true");
-        intent.putExtra("aspectX", 1);
-        intent.putExtra("aspectY", 1);
+
+        if (Build.MANUFACTURER.equals("HUAWEI")) {
+            intent.putExtra("aspectX", 9998);
+            intent.putExtra("aspectY", 9999);
+        } else {
+            intent.putExtra("aspectX", 1);
+            intent.putExtra("aspectY", 1);
+        }
 
         intent.putExtra("outputX", 300);
         intent.putExtra("outputY", 300);
@@ -145,9 +151,12 @@ public class AvatarChoose extends AppCompatActivity implements View.OnClickListe
 
         startActivityForResult(intent, CROP_REQUEST_CODE);
     }
+
+    private Bitmap image;
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         Log.e("----*1----",requestCode+"我来了");
+
         switch (requestCode) {
             case ALBUM_REQUEST_CODE:    //调用相册后返回
                 Log.e("----*1----",resultCode+"我来了"+RESULT_OK);
@@ -162,11 +171,12 @@ public class AvatarChoose extends AppCompatActivity implements View.OnClickListe
                 Bundle bundle = intent.getExtras();
                 if (bundle != null) {
                     //在这里获得了剪裁后的Bitmap对象，可以用于上传
-                    Bitmap image = bundle.getParcelable("data");
+                    final Bitmap bitmap = bundle.getParcelable("data");
                     //设置到ImageView上
                     mHeader_iv.setImageBitmap(image);
-                    //也可以进行一些保存、压缩等操作后上传
-//                    String path = saveImage("crop", image);
+
+                    image=bitmap;
+                    serveText.setText("保存");
                 }
                 break;
         }
