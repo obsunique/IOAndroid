@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.example.cc.iocontrolapplication.R;
 import com.example.cc.iocontrolapplication.main.IOIndex;
 import com.example.cc.iocontrolapplication.utils.CountDownTimerUtils;
+import com.example.cc.iocontrolapplication.utils.JudgeUntils;
 import com.example.cc.iocontrolapplication.utils.PayHttpUtils;
 import com.example.cc.iocontrolapplication.utils.SharedPrefUtility;
 
@@ -145,8 +146,8 @@ public class RegisterActivity extends AppCompatActivity {
 
                 View focusView = null;
                 number=mNumberView.getText().toString();
-                Log.e("-------***2---result---",!TextUtils.isEmpty(number)+" "+isMobileNumber(number));
-                if(isMobileNumber(number)&&!TextUtils.isEmpty(number)){
+
+                if(JudgeUntils.isPhoneNumber(number)&&!TextUtils.isEmpty(number)){
 
                     countDownTimerUtils.start();
                     JSONObject json = new JSONObject();
@@ -190,7 +191,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         String password = mPasswordView.getText().toString();
         View focusView = null;
-        if (TextUtils.isEmpty(password) && !isPasswordValid(password)) {
+        if (TextUtils.isEmpty(password) && !JudgeUntils.isPasswordValid(password)) {
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
             focusView.requestFocus();
@@ -216,16 +217,6 @@ public class RegisterActivity extends AppCompatActivity {
         mAuthTask = new UserLoginTask(url,json,intent);
         mAuthTask.execute((Void) null);
 
-    }
-    //判断手机
-    public boolean isMobileNumber(String mobiles) {
-        String telRegex = "^((13[0-9])|(15[^4])|(18[0-9])|(17[0-8])|(147,145))\\d{8}$";
-        Log.e("------***------手机账号",""+mobiles.matches(telRegex));
-        return mobiles.matches(telRegex);
-    }
-
-    private boolean isPasswordValid(String password) {
-        return password.length() >= 6;
     }
 
     /**
@@ -297,12 +288,16 @@ public class RegisterActivity extends AppCompatActivity {
             if(result!=null){
                 Log.e("-------***2---result---",result.toString());
                 try {
-                    if(mRegisterSignInButton.getText().toString().equals("下一步"))
+                    if(mRegisterSignInButton.getText().toString().equals("下一步")){
                         setCode(result.getString("code"));
-                    else
-                        userid=result.getString("flag");
-
-                    return true;
+                        return true;
+                    } else {
+                        userid = result.getString("flag");
+                        if (userid.compareTo("0") > 0) {
+                            Log.e("-------***3---result---", result.getString("flag"));
+                            return true;
+                        }
+                    }
                 }catch (Exception e){
                     return false;
                 }

@@ -23,7 +23,9 @@ import android.widget.TextView;
 import com.example.cc.iocontrolapplication.R;
 import com.example.cc.iocontrolapplication.main.IOIndex;
 import com.example.cc.iocontrolapplication.utils.CountDownTimerUtils;
+import com.example.cc.iocontrolapplication.utils.JudgeUntils;
 import com.example.cc.iocontrolapplication.utils.PayHttpUtils;
+import com.example.cc.iocontrolapplication.utils.SharedPrefUtility;
 
 import org.json.JSONObject;
 
@@ -140,7 +142,7 @@ public class ForgetActivity extends AppCompatActivity {
 
                 View focusView = null;
                 number=mNumberView.getText().toString();
-                if(isMobileNumber(number)&&!TextUtils.isEmpty(number)){
+                if(JudgeUntils.isPhoneNumber(number)&&!TextUtils.isEmpty(number)){
                     countDownTimerUtils.start();
                     JSONObject json = new JSONObject();
                     try {
@@ -174,6 +176,7 @@ public class ForgetActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent=new Intent();
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
+                SharedPrefUtility.setParam(ForgetActivity.this,SharedPrefUtility.UserId,12);
                 intent.setClass(ForgetActivity.this,IOIndex.class);
                 startActivity(intent);
             }
@@ -220,20 +223,6 @@ public class ForgetActivity extends AppCompatActivity {
             mAuthTask = new UserLoginTask(url,json,intent);
             mAuthTask.execute((Void) null);
 
-    }
-    //判断手机
-    public boolean isMobileNumber(String mobiles) {
-        String telRegex = "^((13[0-9])|(15[^4])|(18[0-9])|(17[0-8])|(147,145))\\d{8}$";
-        Log.e("------***------手机账号",""+mobiles.matches(telRegex));
-        return mobiles.matches(telRegex);
-    }
-
-    private boolean isEmailValid(String email) {
-        return email.contains("@");
-    }
-
-    private boolean isPasswordValid(String password) {
-        return password.length() >= 6;
     }
 
     /**
@@ -310,9 +299,15 @@ public class ForgetActivity extends AppCompatActivity {
             if(result!=null){
                 Log.e("-------***2---result---",result.toString());
                 try {
-                    if(mForginSignInButton.getText().toString().equals("下一步"))
+                    String flag="";
+                    if(mForginSignInButton.getText().toString().equals("下一步")){
                         setCode(result.getString("code"));
-                    Log.e("-------***3---result---", result.getString("flag"));
+                    }else{
+                        flag=result.getString("flag");
+                        if(Integer.parseInt(flag)<1){
+                            return false;
+                        }
+                    }
                     return true;
                 }catch (Exception e){
                     return false;

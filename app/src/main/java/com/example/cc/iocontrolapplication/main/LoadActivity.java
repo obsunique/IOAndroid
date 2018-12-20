@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
-import com.example.cc.iocontrolapplication.login.LoginActivity;
 import com.example.cc.iocontrolapplication.utils.SharedPrefUtility;
 
 /**
@@ -24,7 +23,7 @@ public class LoadActivity extends Activity {
         if(isLogin){
             intent.setClass(LoadActivity.this,IOIndex.class);
         }else
-            intent.setClass(LoadActivity.this, LoginActivity.class);
+            intent.setClass(LoadActivity.this, StartActivity.class);
         startActivity(intent);
     }
 }

@@ -12,12 +12,14 @@ public class SharedPrefUtility {
 
     public static final String INDEX="index";
     public static final String LOGIN_DATA="loginData";
-    public static final String IS_LOGIN="isLogin";
+    public static final String IS_LOGIN="IS_LOGIN";
     public static final String UserId="";
+    public static final String UserAvatar="";
+    public static final String UserName="";
     public static final String UserPhone="";
     public static final String UserRealName="";
     public static final String UserIdCard="";
-
+    public static final String UserEmail="";
 
     /**
      * save data into FILE_NAME ,this path is data/data/POCKET_NAME/shared_prefs

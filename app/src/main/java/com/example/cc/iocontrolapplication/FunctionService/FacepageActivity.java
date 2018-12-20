@@ -22,7 +22,7 @@ public class FacepageActivity extends AppCompatActivity implements View.OnClickL
 
     private ActionBar actionBar;
     private ImageView backimageView;
-    private TextView titleText;
+    private TextView titleText,serveText;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -47,7 +47,8 @@ public class FacepageActivity extends AppCompatActivity implements View.OnClickL
 
         backimageView=(ImageView) findViewById(R.id.actionbar_edit_button);
         titleText=(TextView) findViewById(R.id.actionbar_edit_title);
-
+        serveText=(TextView)findViewById(R.id.actionbar_edit_serve);
+        serveText.setVisibility(View.GONE);
         titleText.setText("人脸识别");
     }
 

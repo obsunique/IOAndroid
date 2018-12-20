@@ -17,15 +17,20 @@ import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.cc.iocontrolapplication.R;
+import com.example.cc.iocontrolapplication.utils.JudgeUntils;
 import com.example.cc.iocontrolapplication.utils.PayHttpUtils;
+import com.example.cc.iocontrolapplication.utils.SharedPrefUtility;
 import com.example.cc.iocontrolapplication.utils.ToastDiag;
 
 import org.json.JSONObject;
@@ -36,9 +41,9 @@ import org.json.JSONObject;
 
 public class EditMessageActivity extends AppCompatActivity implements View.OnClickListener,TextView.OnEditorActionListener {
 
-    private EditText editText,editTextSecond;
-    private LinearLayout editTextView,editTextSecondView;
-    private TextView editTextName,editTextSecondName;
+    private EditText editText,editTextSecond,editCodeValue;
+    private LinearLayout editTextView,editTextSecondView,editCodeView;
+    private Button editButton;
 
     private View mProgressView;
     private View meditFormView;
@@ -54,6 +59,7 @@ public class EditMessageActivity extends AppCompatActivity implements View.OnCli
     private TextView titleText;
     private TextView serveText;
 
+    private String sendcode;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -92,67 +98,95 @@ public class EditMessageActivity extends AppCompatActivity implements View.OnCli
     }
     public void initLayout(){
         if(editId<0||userid<0){
-            ToastDiag.warnDiag(EditMessageActivity.this,"网络连接错误");
+            ToastDiag.Toast(EditMessageActivity.this,"网络连接错误");
+            return;
         }else {
-            backimageView=(ImageView) findViewById(R.id.actionbar_edit_button);
-            titleText=(TextView) findViewById(R.id.actionbar_edit_title);
-            serveText=(TextView) findViewById(R.id.actionbar_edit_serve);
+            backimageView=(ImageView) findViewById(R.id.actionbar_edit_button);//返回
+            titleText=(TextView) findViewById(R.id.actionbar_edit_title);//标题
+            serveText=(TextView) findViewById(R.id.actionbar_edit_serve);//保存，下一步
+            mProgressView=(View)findViewById(R.id.edit_progress);//加载
+            meditFormView=(View)findViewById(R.id.edit_form);//表格
+
+            editTextView=(LinearLayout)findViewById(R.id.edit_message_view);//第一列栏
+            editText = (EditText) findViewById(R.id.edit_message);//第一列输入
+
+            editCodeView=(LinearLayout)findViewById(R.id.edit_message_code_view);//验证码栏
+            editCodeValue=(EditText)findViewById(R.id.edit_message_code_value);//验证码输入栏
+            editButton=(Button)findViewById(R.id.edit_message_code_send);//发送验证码
+
+            editTextSecondView=(LinearLayout)findViewById(R.id.edit_message_second_view);//第二列栏
+            editTextSecond=(EditText) findViewById(R.id.edit_message_second);//第二列输入
+
+
 
             switch (editId){
                 case 1:
-                    titleText.setText("更改昵称");;
+                    titleText.setText("更改昵称");
+                    editText.setHint("昵称");
                     break;
                 case 2:
-                    titleText.setText("身份认证");;
+                    titleText.setText("身份认证");
+                    editValue="";
+                    idcardEvent();
                     break;
                 case 3:
                     titleText.setText("更改手机号码");
-                    serveText.setText("下一步");
+                    phoneEvent();
                     break;
                 case 4:
+                    if(editValue.equals("前往设置")){
+                        editValue="";
+                    }
                     titleText.setText("注册邮箱");;
+                    emailEvent();
                     break;
                 default:break;
             }
-
-            editText = (EditText) findViewById(R.id.edit_message);
-            if(editValue.equals("前往设置")){
-                editValue="";
-            }
-            if(editId==2){
-                editValue="";
-                mProgressView=(View)findViewById(R.id.edit_progress);
-                meditFormView=(View)findViewById(R.id.edit_form);
-                editTextName=(TextView)findViewById(R.id.edit_message_name);
-                editTextName.setVisibility(View.VISIBLE);
-                editTextSecondView=(LinearLayout)findViewById(R.id.edit_message_second_view);
-                editTextSecondView.setVisibility(View.VISIBLE);
-                editTextSecond=(EditText) findViewById(R.id.edit_message_second);
-            }
+            Log.e("-----*******----",editValue+"");
             editText.setText(editValue);
         }
     }
     public void initLayoutListener(){
-        editText.setOnEditorActionListener(this);
-        if(editId==2){
-            editTextSecond.setOnEditorActionListener(this);
-        }
         backimageView.setOnClickListener(this);
         serveText.setOnClickListener(this);
-    }
+        editText.setOnEditorActionListener(this);
+        editButton.setOnClickListener(this);
+        editTextSecond.setOnEditorActionListener(this);
+        editCodeValue.setOnEditorActionListener(this);
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()){
-            case R.id.actionbar_edit_button:
-                onBackPressed();
-                break;
-            case R.id.actionbar_edit_serve:
-                push();
-                break;
-            default:
-                break;
-        }
+        initTouch();
+    }
+    public void initTouch(){
+        editText.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(null != EditMessageActivity.this.getCurrentFocus()){
+                    InputMethodManager mInputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+                    return mInputMethodManager.hideSoftInputFromWindow(EditMessageActivity.this.getCurrentFocus().getWindowToken(), 0);
+                }
+                return false;
+            }
+        });
+        editCodeValue.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(null != EditMessageActivity.this.getCurrentFocus()){
+                    InputMethodManager mInputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+                    return mInputMethodManager.hideSoftInputFromWindow(EditMessageActivity.this.getCurrentFocus().getWindowToken(), 0);
+                }
+                return false;
+            }
+        });
+        editTextSecond.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(null != EditMessageActivity.this.getCurrentFocus()){
+                    InputMethodManager mInputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+                    return mInputMethodManager.hideSoftInputFromWindow(EditMessageActivity.this.getCurrentFocus().getWindowToken(), 0);
+                }
+                return false;
+            }
+        });
     }
     public String checkUrl(int editId){
         String url="";
@@ -174,6 +208,77 @@ public class EditMessageActivity extends AppCompatActivity implements View.OnCli
         }
         return url;
     }
+
+
+    public void idcardEvent(){
+        editText.setHint("真实姓名");
+        editTextSecond.setHint("身份证");
+        editTextSecondView.setVisibility(View.VISIBLE);
+    }
+
+    public void phoneEvent(){
+        editText.setHint("手机号码");
+        editCodeView.setVisibility(View.VISIBLE);
+        serveText.setText("下一步");
+    }
+    public void phoneNewEvent(){
+        editTextView.setVisibility(View.GONE);
+        editCodeView.setVisibility(View.GONE);
+        serveText.setText("保存");
+        editTextSecondView.setVisibility(View.VISIBLE);
+        editTextSecond.setHint("新手机号码");
+    }
+    public void emailEvent(){
+        editText.setHint("邮箱:");
+        editCodeView.setVisibility(View.VISIBLE);
+        serveText.setText("下一步");
+    }
+    public void emailNewEvent(){
+        editTextView.setVisibility(View.GONE);
+        editCodeView.setVisibility(View.GONE);
+        serveText.setText("保存");
+        editTextSecondView.setVisibility(View.VISIBLE);
+        editTextSecond.setHint("新邮箱号码");
+    }
+    //事件
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.actionbar_edit_button:
+                onBackPressed();
+                break;
+            case R.id.actionbar_edit_serve:
+                if (serveText.getText().toString().equals("保存"))
+                    if((editId==1&&isContinue(editText))||(editId!=1&&isContinue(editTextSecond)))
+                        push();
+                    else if(serveText.getText().toString().equals("下一步")){
+                        if(editId==3){
+                            if(isContinue(editText)) {
+                                if (isCode()) {
+                                    phoneNewEvent();
+                                }
+                            }
+                        } else if(editId==4)
+                            if (JudgeUntils.isEmailValid(editTextSecond.getText().toString())){
+                            if (isCode()) {
+                                emailNewEvent();
+                            }
+                        }else{
+                                View view=null;
+                                editTextSecond.setError("邮箱格式错误");
+                                view=editTextSecond;
+                                view.requestFocus();
+                            }
+                    }
+                break;
+            case R.id.edit_message_code_send:
+                send();
+                break;
+            default:
+                break;
+        }
+    }
+
     @Override
     public boolean onEditorAction(TextView v, int id, KeyEvent event) {
         switch (v.getId()) {
@@ -187,6 +292,10 @@ public class EditMessageActivity extends AppCompatActivity implements View.OnCli
         }
 
     }
+
+
+
+    //返回
     public boolean  onOptionsItemSelected(MenuItem item){
         if(item.getItemId()==android.R.id.home){
             onBackPressed();
@@ -197,57 +306,123 @@ public class EditMessageActivity extends AppCompatActivity implements View.OnCli
     @Override
     public void onBackPressed() {
         Intent intent=new Intent();
-        if(editId!=2){
-            intent.putExtra("editString",jsonname);
-            intent.putExtra("editValue",editValue);
-        }
-        setResult(editId,intent);
+        //getParent().startActivityForResult(intent, 4);
+        setResult(4,intent);
         finish();
     }
+    // 判断手机号码栏
+    public boolean isContinue(EditText editText){
+        String number=editText.getText().toString();
+        View view=null;
+        if(TextUtils.isEmpty(number)){
+            editText.setError("请不要为空");
+            view=editText;
+            view.requestFocus();
+        }else if (editId==3&&!JudgeUntils.isPhoneNumber(number)){
+            editText.setError("请注意手机号码格式");
+            view=editText;
+            view.requestFocus();
+        }else
+            return true;
+        return false;
+    }
+    //判断验证码栏
+    public boolean isCode(){
+        String code=editCodeValue.getText().toString();
+        View view=null;
+        if (TextUtils.isEmpty(sendcode)){
+            editCodeValue.setError("请获取验证码");
+            view=editCodeValue;
+            view.requestFocus();
+        }if (TextUtils.isEmpty(code)){
+            editCodeValue.setError("请输入验证码");
+            view=editCodeValue;
+            view.requestFocus();
+        }if (!code.equals(sendcode)){
+            editCodeValue.setError("验证码不相等");
+            view=editCodeValue;
+            view.requestFocus();
+        }else
+            return true;
+        return false;
+    }
 
-    public void push(){
-        String editOne=editText.getText().toString();
-        String editsecond="";
-        if(editId==0||userid==0){
-            ToastDiag.warnDiag(EditMessageActivity.this,"网络连接错误");
+
+    //发送验证码
+    public void send() {
+        if (pushTask != null) {
             return;
         }
-        if(editId==2)
-            editsecond=editTextSecond.getText().toString();
-        if(TextUtils.isEmpty(editOne)){
-            editText.setError("请输入");
-            View view=editText;
-            view.requestFocus();
-        }else if(TextUtils.isEmpty(editsecond)&&editId==2){
-            editTextSecond.setError("请输入");
-            View view=editTextSecond;
-            view.requestFocus();
-        }else if(editsecond.length()!=18&&editId==2){
-            editTextSecond.setError("身份证位数需18位");
-            View view=editTextSecond;
-            view.requestFocus();
-        } else {
+        String editOne = editText.getText().toString();
+        if ((editId == 3 && isContinue(editText) || (editId == 4 && JudgeUntils.isEmailValid(editOne)))) {
             JSONObject json = new JSONObject();
+            //手机密码登录
+            String url = "";
+            if (editId == 2)
+                url = "http://47.107.248.227:8080/android/Login/sendCode";
             try {
                 json.put("userid",userid);
-                json.put(jsonname,editOne);
-                if(editId==2) {
-                    json.put("useridcard", editsecond);
-                    showProgress(true);
-                }
-            }catch (Exception e) {
-                ToastDiag.warnDiag(EditMessageActivity.this,"系统错误");
+                json.put(jsonname, editOne);
+            } catch (Exception e) {
             }
-            Log.e("-------***---json---",json.toString());
-            String url=checkUrl(editId);
-            if(url.equals("")){
-                ToastDiag.warnDiag(EditMessageActivity.this,"系统错误");
-                return;
-            }
-            pushTask = new PushTask(url,json);
+
+            pushTask = new PushTask(url, json);
             pushTask.execute((Void) null);
         }
     }
+    //提交
+    public void push(){
+        if (pushTask != null) {
+            return;
+        }
+        String editOne=editText.getText().toString();
+        String editsecond=editTextSecond.getText().toString();
+        JSONObject json = new JSONObject();
+        //手机密码登录
+        String url=checkUrl(editId);
+        try {
+            json.put("userid",userid);
+            if(editId==1)
+                json.put(jsonname,editOne);
+            else if (editId==2) {
+                json.put(jsonname,editOne);
+                json.put("useridcard", editsecond);
+            }else
+                json.put(jsonname,editsecond);
+        }catch (Exception e) {}
+
+        pushTask = new PushTask(url,json);
+        pushTask.execute((Void) null);
+
+    }
+
+    public void setcode(String sendcode){
+        this.sendcode=sendcode;
+    }
+
+    //设置缓存
+    public void setSP(int editId){
+        String editOne=editText.getText().toString();
+        String editsecond=editTextSecond.getText().toString();
+        switch (editId){
+            case 1:
+                SharedPrefUtility.setParam(EditMessageActivity.this,SharedPrefUtility.UserName,editOne);
+                break;
+            case 2:
+                SharedPrefUtility.setParam(EditMessageActivity.this,SharedPrefUtility.UserRealName,editOne);
+                SharedPrefUtility.setParam(EditMessageActivity.this,SharedPrefUtility.UserIdCard,editsecond);
+                break;
+            case 3:
+                SharedPrefUtility.setParam(EditMessageActivity.this,SharedPrefUtility.UserPhone,editsecond);
+                break;
+            case 4:
+                SharedPrefUtility.setParam(EditMessageActivity.this,SharedPrefUtility.UserEmail,editsecond);
+                break;
+        }
+    }
+
+
+
 
     public class PushTask extends AsyncTask<Void, Void, Boolean> {
         private final JSONObject json;
@@ -263,42 +438,47 @@ public class EditMessageActivity extends AppCompatActivity implements View.OnCli
             } catch (InterruptedException e) {
                 return false;
             }
-            //String users="[{\"username\":"+mNumberView.getText().toString()+",\"password\":"+mPasswordView.getText().toString()+"}]";
-            Log.e("-------***---json---",json.toString());
+            Log.e("-----*******----",json.toString());
             PayHttpUtils httpUtils = new PayHttpUtils();
             JSONObject result = httpUtils.post(url,json.toString(),null,null);
-            Log.e("-------***1---result---",result+"");
-            if(result!=null){
-                Log.e("-------***2---result---",result.toString());
+            if(result!=null) {
+                Log.e("-----*******----",result.toString());
                 try {
-                    Log.e("-------***3---result---", result.getString("flag"));
-                    return true;
-                }catch (Exception e){
+                    String flag="0";
+                    if (serveText.getText().toString().equals("下一步")){
+                        flag= result.getString("code");
+                        setcode(flag);
+                        return true;
+                    }
+                    Log.e("-----*******----",result.getString("flag"));
+                    Log.e("-----*******----",flag.compareTo("0")+"");
+                    flag= result.getString("flag");
+                    if (Integer.parseInt(flag)>0) {
+                        setSP(editId);
+                        return true;
+                    } else {
+                        ToastDiag.Toast(EditMessageActivity.this, "保存失败1");
+                    }
+                } catch (Exception e) {
                     return false;
                 }
-
             }
-            // TODO: register the new account here.
             return false;
         }
         @Override
         protected void onPostExecute(final Boolean success) {
-            if(editId==2)
-                showProgress(false);
+
             pushTask = null;
             if (success) {
-               onBackPressed();
+                if (serveText.getText().toString().equals("保存"))
+                onBackPressed();
             } else {
-                editText.setError("已存在");
-                View view=editText;
-                view.requestFocus();
+                ToastDiag.Toast(EditMessageActivity.this,"保存失败2");
             }
         }
         @Override
         protected void onCancelled() {
             pushTask = null;
-            if(editId==2)
-                showProgress(false);
         }
     }
 

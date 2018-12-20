@@ -13,7 +13,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.cc.iocontrolapplication.FunctionService.FunctionServiceActivity;
 import com.example.cc.iocontrolapplication.R;
@@ -32,6 +31,8 @@ import org.json.JSONObject;
 public class UserActivity extends Activity implements View.OnClickListener {
 
     private Integer userid=12;
+    private String username,userphone,userrealname,useridcard,useremail;
+
     private LinearLayout userimageButton;
     private ImageView userimageValue;
     private LinearLayout usernameView,useridcardView,userphonenumberView,useremailnumberView,userisAutoPayView,userFaceView,userOpenServiceView;
@@ -41,36 +42,32 @@ public class UserActivity extends Activity implements View.OnClickListener {
 
     private JSONObject reultJson;
     private PushTask pushTask;
-/*
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode){
-            case 1:
-                if(resultCode==1){
-                    Log.e("----****-----",data.getStringExtra("editValue"));
-                    usernameValue.setText(data.getStringExtra("editValue"));
-                }
-                break;
-            default:
-                break;
-        }
-    }
-*/
 
     public void refreshData(){
-        //userid=(Integer) SharedPrefUtility.getParam(UserActivity.this, SharedPrefUtility.UserId, 0);
-        if(userid<0){
-            Toast.makeText(UserActivity.this,"请连接网络",Toast.LENGTH_LONG);
-        }else{
-            String url=null;
+        Integer userid=(Integer) SharedPrefUtility.getParam(UserActivity.this, SharedPrefUtility.UserId, 0);
+
+        Log.e("-----userid----",userid+"");
+        /*
+        username=(String) SharedPrefUtility.getParam(UserActivity.this, SharedPrefUtility.UserName, "");
+        userphone=(String) SharedPrefUtility.getParam(UserActivity.this, SharedPrefUtility.UserPhone, "");
+        userrealname=(String) SharedPrefUtility.getParam(UserActivity.this, SharedPrefUtility.UserRealName, "");
+        useridcard=(String) SharedPrefUtility.getParam(UserActivity.this, SharedPrefUtility.UserIdCard, "");
+        useremail=(String) SharedPrefUtility.getParam(UserActivity.this, SharedPrefUtility.UserEmail, "");
+*/
+        Log.e("-----userphone----",userphone+"");
+        if(this.userid<1){
+            ToastDiag.Toast(UserActivity.this,"请连接网络");
+        }else if(userphone==null){
             JSONObject json = new JSONObject();
             //手机密码登录
-            url="http://47.107.248.227:8080/android/User/checkUserPerfectMesaage";
+            String url="http://47.107.248.227:8080/android/User/checkUserPerfectMesaage";
             try {
                 json.put("userid",userid);
             }catch (Exception e) {}
             pushTask = new PushTask(url,json);
             pushTask.execute((Void) null);
+        }else{
+            setData();
         }
 
     }
@@ -87,11 +84,64 @@ public class UserActivity extends Activity implements View.OnClickListener {
             StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
             StrictMode.setVmPolicy(builder.build());
         }
-        refreshData();
+
         initLayout();
         initLayoutListener();
-
+        refreshData();
     }
+
+//导入数据到SP
+    public void inDate(){
+        try{
+            JSONObject userperfectWithBLOBs=reultJson.getJSONObject("userperfectWithBLOBs");
+            JSONObject user=reultJson.getJSONObject("user");
+            Log.e("----******---eeee---",userperfectWithBLOBs.getString("userfaceimage").equals("null")+"");
+
+            if(!user.getString("username").equals("null")) {
+                SharedPrefUtility.setParam(UserActivity.this,SharedPrefUtility.UserName,user.getString("username"));
+                usernameValue.setText(user.getString("username"));
+            }
+
+            if(userperfectWithBLOBs.getString("userrealname").equals("null")) {
+                useridcardValue.setText("未实名");
+            }else{
+                SharedPrefUtility.setParam(UserActivity.this,SharedPrefUtility.UserRealName,userperfectWithBLOBs.getString("userrealname"));
+                SharedPrefUtility.setParam(UserActivity.this,SharedPrefUtility.UserIdCard,userperfectWithBLOBs.getString("useridcard"));
+                useridcardValue.setText("已实名");
+            }
+
+            if(!user.getString("userphone").equals("null")){
+                SharedPrefUtility.setParam(UserActivity.this,SharedPrefUtility.UserPhone,user.getString("userphone"));
+                userphonenumberValue.setText(user.getString("userphone"));
+            }
+
+
+            if(userperfectWithBLOBs.getString("useremail").equals("null"))
+                useremailnumberValue.setText("前往设置");
+            else {
+                SharedPrefUtility.setParam(UserActivity.this,SharedPrefUtility.UserEmail,user.getString("useremail"));
+                useremailnumberValue.setText(userperfectWithBLOBs.getString("useremail"));
+            }
+            if(userperfectWithBLOBs.getInt("isautopay")!=0)
+                userisAutoPayValue.setText("已开启");
+
+            if(userperfectWithBLOBs.getString("userfaceimage").equals("null"))
+                userFaceValue.setText("未开启");
+            else
+                userFaceValue.setText("已开启");
+        }catch (Exception e){
+            Log.e("----******---eeee---",e.toString());
+        }
+    }
+    //从SP导入数据
+    public void setData(){
+        usernameValue.setText(username);
+        if(userrealname!=null)
+            useridcardValue.setText("已实名");
+        userphonenumberValue.setText(userphone);
+        useremailnumberValue.setText(useremail);
+    }
+
     public void initLayout(){
 
         userimageButton=(LinearLayout)findViewById(R.id.userimage_button);
@@ -127,49 +177,7 @@ public class UserActivity extends Activity implements View.OnClickListener {
         exitLogin=(LinearLayout)findViewById(R.id.exit_login);
 
     }
-    public void inDate(){
-        try{
-            JSONObject userperfectWithBLOBs=reultJson.getJSONObject("userperfectWithBLOBs");
-            JSONObject user=reultJson.getJSONObject("user");
-            Log.e("----******---eeee---",userperfectWithBLOBs.getString("userfaceimage").equals("null")+"");
 
-            if(!user.getString("username").equals("null"))
-                usernameValue.setText(user.getString("username"));
-            else
-                usernameValue.setText("前往设置");
-
-            if(userperfectWithBLOBs.getString("userrealname").equals("null")) {
-                useridcardValue.setText("未实名");
-            }else{
-                SharedPrefUtility.setParam(UserActivity.this,userperfectWithBLOBs.getString("userrealname"),"");
-                SharedPrefUtility.setParam(UserActivity.this,userperfectWithBLOBs.getString("useridcard"),"");
-                useridcardValue.setText("已实名");
-            }
-
-            if(!user.getString("userphone").equals("null"))
-                userphonenumberValue.setText(user.getString("userphone"));
-            else{
-                SharedPrefUtility.setParam(UserActivity.this,user.getString("userphone"),"");
-                userphonenumberValue.setText("前往修改");
-            }
-
-
-            if(userperfectWithBLOBs.getString("useremail").equals("null"))
-                useremailnumberValue.setText("前往设置");
-            else
-                useremailnumberValue.setText(userperfectWithBLOBs.getString("useremail"));
-
-            if(userperfectWithBLOBs.getInt("isautopay")!=0)
-                userisAutoPayValue.setText("已开启");
-
-            if(userperfectWithBLOBs.getString("userfaceimage").equals("null"))
-                userFaceValue.setText("未开启");
-            else
-                userFaceValue.setText("已开启");
-        }catch (Exception e){
-            Log.e("----******---eeee---",e.toString());
-        }
-    }
     public void initLayoutListener(){
         userimageValue.setOnClickListener(this);
         userimageButton.setOnClickListener(this);
@@ -184,6 +192,10 @@ public class UserActivity extends Activity implements View.OnClickListener {
     }
     @Override
     public void onClick(View v) {
+        if(usernameValue.getText().toString().equals("正在加载")) {
+            ToastDiag.Toast(UserActivity.this, "请连接网络");
+            return;
+        }
         Intent intent=new Intent();
         switch (v.getId()) {
             case R.id.userimage_value:
@@ -193,11 +205,13 @@ public class UserActivity extends Activity implements View.OnClickListener {
                 getPicFromAlbm();
                 break;
             case R.id.username_button:
-                intoEditPage(1,"username",usernameValue.getText().toString());
+                    intoEditPage(1,"username",usernameValue.getText().toString());
                 break;
             case R.id.IdCard_button:
                 if(useridcardValue.getText().toString().equals("未实名"))
-                    intoEditPage(2,"userrealname",useridcardValue.getText().toString());
+                        intoEditPage(2,"userrealname",useridcardValue.getText().toString());
+                if(useridcardValue.getText().toString().equals(""))
+                    ToastDiag.Toast(UserActivity.this,"请连接网络");
                 break;
             case R.id.userphonenumber_button:
                 intoEditPage(3,"userphone",userphonenumberValue.getText().toString());
@@ -211,8 +225,16 @@ public class UserActivity extends Activity implements View.OnClickListener {
                 break;
             case R.id.Face_button:
                 //打开人脸识别
-                intent.setClass(UserActivity.this, PreviewActivity.class);
-                startActivity(intent);
+                if (userFaceValue.getText().toString().equals("已开启")) {
+                    ToastDiag.Toast(UserActivity.this,"你已开启人脸注册");
+                }else
+                    if (useridcardValue.getText().toString().equals("已实名")) {
+                        intent.setClass(UserActivity.this, PreviewActivity.class);
+                        startActivity(intent);
+                    } else {
+                        ToastDiag.Toast(UserActivity.this, "请前往实名认证");
+                    }
+
                 break;
             case R.id.OpenService:
                 openFunctionService();
@@ -244,7 +266,6 @@ public class UserActivity extends Activity implements View.OnClickListener {
         startActivity(intent);
     }
 
-    //打开图册选照片
 
     //打开人脸识别
 
@@ -260,6 +281,11 @@ public class UserActivity extends Activity implements View.OnClickListener {
         SharedPrefUtility.setParam(UserActivity.this, SharedPrefUtility.IS_LOGIN, false);
         SharedPrefUtility.removeParam(UserActivity.this, SharedPrefUtility.LOGIN_DATA);
         SharedPrefUtility.removeParam(UserActivity.this, SharedPrefUtility.UserId);
+        SharedPrefUtility.removeParam(UserActivity.this, SharedPrefUtility.UserName);
+        SharedPrefUtility.removeParam(UserActivity.this, SharedPrefUtility.UserPhone);
+        SharedPrefUtility.removeParam(UserActivity.this, SharedPrefUtility.UserRealName);
+        SharedPrefUtility.removeParam(UserActivity.this, SharedPrefUtility.UserIdCard);
+        SharedPrefUtility.removeParam(UserActivity.this, SharedPrefUtility.UserEmail);
         Intent intent=new Intent();
         intent.setClass(UserActivity.this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -312,7 +338,7 @@ public class UserActivity extends Activity implements View.OnClickListener {
             if (success) {
                 inDate();
             } else {
-                ToastDiag.warnDiag(UserActivity.this,"系统错误");
+                ToastDiag.Toast(UserActivity.this,"系统错误");
                 return;
             }
         }
@@ -342,7 +368,7 @@ public class UserActivity extends Activity implements View.OnClickListener {
      * 裁剪图片
      */
     private void cropPhoto(Uri uri) {
-        Log.e("----*3----","我来了");
+        Log.e("----*3----", "我来了");
         Intent intent = new Intent("com.android.camera.action.CROP");
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
@@ -376,8 +402,11 @@ public class UserActivity extends Activity implements View.OnClickListener {
                     //设置到ImageView上
                     userimageValue.setImageBitmap(image);
                     //也可以进行一些保存、压缩等操作后上传
-//                    String path = saveImage("crop", image);
+                    // String path = saveImage("crop", image);
                 }
+                break;
+            case 4:
+                refreshData();
                 break;
         }
     }

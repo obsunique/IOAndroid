@@ -5,9 +5,7 @@ package com.example.cc.iocontrolapplication.main;
  */
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.LocalActivityManager;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
@@ -18,7 +16,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -52,7 +49,6 @@ public class IOIndex extends Activity implements
     private LinearLayout usernameView;
     private TextView username;
 
-    //private ActivityAdapter adapter=new ActivityAdapter(mViews);
     private LocalActivityManager manager;
     private Intent intentIndex,intentInformation,intentUser;
     @Override
@@ -129,20 +125,6 @@ public class IOIndex extends Activity implements
         mInformationImg = (ImageView) findViewById(R.id.information_img);
         mMysettingImg = (ImageView) findViewById(R.id.my_settings_img);
 
-
-
-    }
-    public void showdialog(final TextView view){
-        final EditText input=new EditText(this);
-        AlertDialog.Builder builder=new AlertDialog.Builder(this);
-        builder.setView(input).setNegativeButton("Cancel",null);
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                view.setText(input.getText().toString());
-            }
-        });
-        builder.show();
     }
     /**
      * 初始化ViewPage
@@ -223,9 +205,6 @@ public class IOIndex extends Activity implements
                 resetImg();
                 mMysettingImg.setImageResource(R.drawable.mysetting);
                 break;
-            case R.id.username_button:
-                Log.e("---****-----button","error error");
-                showdialog(username);
             default:
                 break;
         }

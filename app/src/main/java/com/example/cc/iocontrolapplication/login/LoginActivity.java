@@ -23,6 +23,7 @@ import android.widget.Toast;
 
 import com.example.cc.iocontrolapplication.R;
 import com.example.cc.iocontrolapplication.main.IOIndex;
+import com.example.cc.iocontrolapplication.utils.JudgeUntils;
 import com.example.cc.iocontrolapplication.utils.PayHttpUtils;
 import com.example.cc.iocontrolapplication.utils.SharedPrefUtility;
 
@@ -33,27 +34,8 @@ import org.json.JSONObject;
  */
 public class LoginActivity extends AppCompatActivity {
 
-    /**
-     * Id to identity READ_CONTACTS permission request.
-     * 权限请求
-     */
+
     private static final int REQUEST_READ_CONTACTS = 0;
-
-    /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     *
-     *包含已知用户名和密码的虚拟身份验证存储。
-     * todo:连接到一个真正的认证系统后删除。
-
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "bar@example.com:world"
-    };
-     */
-    /**
-     * Keep track of the login task to ensure we can cancel it if requested.
-     * 跟踪登录任务，以确保如果需要，我们可以取消它。
-     */
     private UserLoginTask mAuthTask = null;
 
     // UI references.
@@ -121,20 +103,6 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     /**
-     * Callback received when a permissions request has been completed.
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        if (requestCode == REQUEST_READ_CONTACTS) {
-            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                populateAutoComplete();
-            }
-        }
-    }
-     */
-
-    /**
      * 尝试登陆
      */
     private void attemptLogin() {
@@ -155,23 +123,21 @@ public class LoginActivity extends AppCompatActivity {
             mNumberView.setError(getString(R.string.error_field_required));
             focusView = mNumberView;
             cancel = true;
-        } else if (TextUtils.isEmpty(password) || !isPasswordValid(password)) {
+        } else if (TextUtils.isEmpty(password) || !JudgeUntils.isPasswordValid(password)) {
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
             cancel = true;
-        }else if (!isMobileNumber(number)) {
+        }else if (!JudgeUntils.isPhoneNumber(number)) {
             mNumberView.setError(getString(R.string.error_invalid_number));
             focusView = mNumberView;
             cancel = true;
         }
 
         if (cancel) {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.聚焦错误的地方
+            // 聚焦错误的地方
             focusView.requestFocus();
         } else {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
+
             String url=null;
 
             JSONObject json = new JSONObject();
@@ -191,35 +157,16 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    //判断手机
-    public boolean isMobileNumber(String mobiles) {
-        String telRegex = "^((13[0-9])|(15[^4])|(18[0-9])|(17[0-8])|(147,145))\\d{8}$";
-        Log.e("------***------手机账号",""+mobiles.matches(telRegex));
-        return mobiles.matches(telRegex);
-    }
-
-    private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
-        return email.contains("@");
-    }
-    //密码大于6位
-    private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
-        return password.length() >= 6;
-    }
 
     private void setToastEorrer(View view){
         view.requestFocus();
     }
     /**
-     * Shows the progress UI and hides the login form.
      * 转圈
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     private void showProgress(final boolean show) {
-        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-        // for very easy animations. If available, use these APIs to fade-in
-        // the progress spinner.
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
             //获得android定义的短片动画时间
             int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
@@ -243,18 +190,12 @@ public class LoginActivity extends AppCompatActivity {
                 }
             });
         } else {
-            // The ViewPropertyAnimator APIs are not available, so simply show
-            // and hide the relevant UI components.
+
             mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
             mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
         }
     }
 
-
-    /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
-     */
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
         private final JSONObject json;
@@ -272,7 +213,6 @@ public class LoginActivity extends AppCompatActivity {
             // TODO: attempt authentication against a network service.
 
             try {
-                // Simulate network access.
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
                 return false;
