@@ -49,6 +49,7 @@ import com.example.cc.iocontrolapplication.main.IOIndex;
 import com.example.cc.iocontrolapplication.usercenter.UserActivity;
 import com.example.cc.iocontrolapplication.utils.ImgUtil;
 import com.example.cc.iocontrolapplication.utils.PayHttpUtils;
+import com.example.cc.iocontrolapplication.utils.ToastDiag;
 
 
 import org.json.JSONArray;
@@ -57,6 +58,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.security.auth.login.LoginException;
 
 
 public class PreviewActivity extends AppCompatActivity implements ViewTreeObserver.OnGlobalLayoutListener{
@@ -78,15 +80,15 @@ public class PreviewActivity extends AppCompatActivity implements ViewTreeObserv
     private ImageView face_list;
     private TextView autoCompleteTextView;
     private Integer pauseFrame = 0;
-    private ImageView pauseFrameView ;
+    private TextView textView;
     private boolean detectResult = false;
-    private JSONObject detectJson ;
-    private JSONObject addUserJson ;
-    private JSONObject searchJson;
-    private JSONObject userCopyJson;
-    private JSONObject groupAddJson;
-    private JSONObject groupDelectJson;
+    private boolean personVerifyResult = false;
+    private boolean addUserResult = false;
     private boolean detectstatus = false;
+
+    private String userid;
+    private String username;
+
 
     private static final int ACTION_REQUEST_PERMISSIONS = 0x001;
     /**
@@ -102,6 +104,9 @@ public class PreviewActivity extends AppCompatActivity implements ViewTreeObserv
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_preview);
         ActionBar actionBar=getSupportActionBar();
+        Intent intent = getIntent();
+        userid = intent.getStringExtra("userid");
+        username = intent.getStringExtra("username");
         if(actionBar!=null) actionBar.hide();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
@@ -135,7 +140,7 @@ public class PreviewActivity extends AppCompatActivity implements ViewTreeObserv
 
         face_list = findViewById(R.id.face_list);
         autoCompleteTextView = findViewById(R.id.autoCompleteTextView);
-        pauseFrameView = findViewById(R.id.imageView);
+        textView = findViewById(R.id.textView);
         //在布局结束后才做初始化操作
         previewView.getViewTreeObserver().addOnGlobalLayoutListener(this);
     }
@@ -246,153 +251,223 @@ public class PreviewActivity extends AppCompatActivity implements ViewTreeObserv
                         {
                             autoCompleteTextView.setText("活体检测通过");
                             autoCompleteTextView.setTextColor(Color.parseColor("#008000"));
+
                             if(pauseFrame == 0)
                             {
-                                if(!detectstatus) {
+                                Log.i(TAG, "--------onPreview: "+pauseFrame+"     detectstatus"+detectstatus);
+                                if(detectstatus == false) {
                                 //图片转换
+
+                                pauseFrame = 1;
+                                detectstatus = true;
                                 Bitmap bitmap = ImageUtil.nv21ToBitmap(nv21,previewSize.width,previewSize.height,PreviewActivity.this);
                                 bitmap = ImageUtil.rotaingImageView(270,bitmap);
-                                pauseFrameView.setImageBitmap(bitmap);
+                                    Log.e(TAG, "onPreview: 我进行了截图" );
+
                                 String base64=ImgUtil.bitmapToBase64(bitmap);
                                         //detect上传
-                                        detectstatus = true;
-                                        JSONObject json = new JSONObject();
+                                        final JSONObject json = new JSONObject();
                                         try {
                                             json.put("imagein", base64);
-                                        } catch (Exception e) {
-                                        }
-                                        AipfaceTask aipfaceTask = new AipfaceTask("http://47.107.248.227:8080/Aipface/detect", json, "detect");
-                                        aipfaceTask.execute((Void) null);
-                                        if (detectJson != null) {
-                                            try {
-                                                detectJson = detectJson.getJSONObject("result");
-                                                JSONArray array =  detectJson.getJSONArray("face_list");
-                                                detectJson = array.getJSONObject(0);
-                                                detectJson.get("blur");//模糊程度
-                                                Log.e(TAG, "--------DetectOnPreview:模糊程度 "+detectJson.get("blur"));
-                                                detectJson.get("completeness");//人脸完整度
-                                                Log.e(TAG, "--------DetectOnPreview:人脸完整度 "+detectJson.get("completeness"));
-                                                JSONObject angle = detectJson.getJSONObject("angle");
-                                                angle.get("pitch"); //仰俯角
-                                                Log.e(TAG, "--------DetectOnPreview: 仰俯角"+detectJson.get("pitch"));
-                                                angle.get("roll");  //平面旋转角
-                                                Log.e(TAG, "--------DetectOnPreview: 平面旋转角"+detectJson.get("roll"));
-                                                angle.get("yaw");  //左右旋转角
-                                                Log.e(TAG, "--------DetectOnPreview: 左右旋转角"+detectJson.get("yaw"));
-                                                JSONObject location = detectJson.getJSONObject("location");
-                                                location.get("width"); //人脸宽度
-                                                Log.e(TAG, "--------DetectOnPreview: 人脸宽度"+detectJson.get("width"));
-                                                location.get("height"); //人脸高度
-                                                Log.e(TAG, "--------DetectOnPreview: 人脸高度"+detectJson.get("height"));
-                                                JSONObject quality = detectJson.getJSONObject("quality");
-                                                quality.get("illumination"); //光照程度
-                                                Log.e(TAG, "--------DetectOnPreview: 光照程度"+detectJson.get("illumination"));
-                                                JSONObject occlusion = quality.getJSONObject("occlusion");
-                                                occlusion.get("left_eye"); //左眼被遮挡
-                                                Log.e(TAG, "--------DetectOnPreview: 左眼被遮挡"+detectJson.get("yaw"));
-                                                occlusion.get("right_eye"); //右眼被遮挡
-                                                Log.e(TAG, "--------DetectOnPreview: 右眼被遮挡"+detectJson.get("right_eye"));
-                                                occlusion.get("nose"); //鼻子被遮挡
-                                                Log.e(TAG, "--------DetectOnPreview: 鼻子被遮挡"+detectJson.get("nose"));
-                                                occlusion.get("mouth"); //嘴巴被遮挡
-                                                Log.e(TAG, "--------DetectOnPreview: 嘴巴被遮挡"+detectJson.get("mouth"));
-                                                occlusion.get("left_check"); //左脸颊被遮挡
-                                                Log.e(TAG, "--------DetectOnPreview: 左脸颊被遮挡"+detectJson.get("left_check"));
-                                                occlusion.get("right_check"); //右脸颊被遮挡
-                                                Log.e(TAG, "--------DetectOnPreview: 右脸颊被遮挡"+detectJson.get("right_check"));
-                                                occlusion.get("chin_contour"); //下巴被遮挡
-                                                Log.e(TAG, "--------DetectOnPreview: 下巴被遮挡"+detectJson.get("chin_contour"));
+                                        } catch (Exception e) {}
 
-                                                if((double)detectJson.get("blur") > 0.4)
-                                                {
-                                                    autoCompleteTextView.setText("请保持手机不要晃动");
-                                                    autoCompleteTextView.setTextColor(Color.parseColor("#ffff00"));
+                                        final JSONObject addUser = new JSONObject();
+                                        try{
+                                            addUser.put("imagein",base64);
+                                            addUser.put("group","default");
+                                            addUser.put("user",userid);
+                                            addUser.put("userinfo",username);
+                                        }catch (Exception e){}
+
+                                        final JSONObject UserDataBase = new JSONObject();
+                                        try{
+                                            addUser.put("userid",userid);
+                                            addUser.put("userfaceimage","have");
+                                        }catch (Exception e){}
+
+                                        new Thread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                JSONObject detectJson = PayHttpUtils.post("http://47.107.248.227:8080/Aipface/detect", json.toString(),null,null);
+                                                boolean flag = true;
+                                                if (detectJson != null) {
+                                                    Log.e("妈个鸡有毒呀","进入detectJSON判断");
+                                                    try {
+                                                        detectJson = detectJson.getJSONObject("result");
+
+                                                        JSONArray array =  detectJson.getJSONArray("face_list");
+                                                        detectJson = array.getJSONObject(0);
+
+                                                        JSONObject angle = detectJson.getJSONObject("angle");
+
+                                                        angle.getDouble("pitch"); //仰俯角
+                                                        Log.e(TAG, "--------DetectOnPreview: 仰俯角"+angle.getDouble("pitch"));
+
+                                                        angle.get("roll");  //平面旋转角
+                                                        Log.e(TAG, "--------DetectOnPreview: 平面旋转角"+angle.get("roll"));
+
+                                                        angle.get("yaw");  //左右旋转角
+                                                        Log.e(TAG, "--------DetectOnPreview: 左右旋转角"+angle.get("yaw"));
+
+                                                        JSONObject location = detectJson.getJSONObject("location");
+
+                                                        location.getDouble("width"); //人脸宽度
+                                                        Log.e(TAG, "--------DetectOnPreview: 人脸宽度"+location.getDouble("width"));
+
+                                                        location.getDouble("height"); //人脸高度
+                                                        Log.e(TAG, "--------DetectOnPreview: 人脸高度"+location.getDouble("height"));
+
+                                                        JSONObject quality = detectJson.getJSONObject("quality");
+                                                        quality.getDouble("blur");//模糊程度
+                                                        Log.e(TAG,"--------DetectOnPreview:模糊程度"+quality.getDouble("blur")+"");
+
+                                                        quality.getDouble("completeness");//人脸完整度
+                                                        Log.e(TAG, "--------DetectOnPreview:人脸完整度 "+quality.getDouble("completeness"));
+
+                                                        quality.getInt("illumination"); //光照程度
+                                                        Log.e(TAG, "--------DetectOnPreview: 光照程度"+quality.getInt("illumination"));
+
+                                                        JSONObject occlusion = quality.getJSONObject("occlusion");
+                                                        Log.e(TAG, "--------run: "+occlusion.toString() );
+
+                                                        occlusion.getDouble("left_eye"); //左眼被遮挡
+                                                        Log.e(TAG, "--------DetectOnPreview: 左眼被遮挡"+occlusion.getDouble("left_eye"));
+
+                                                        occlusion.getDouble("right_eye"); //右眼被遮挡
+                                                        Log.e(TAG, "--------DetectOnPreview: 右眼被遮挡"+occlusion.getDouble("right_eye"));
+
+                                                        occlusion.getDouble("nose"); //鼻子被遮挡
+                                                        Log.e(TAG, "--------DetectOnPreview: 鼻子被遮挡"+occlusion.getDouble("nose"));
+
+                                                        occlusion.getDouble("mouth"); //嘴巴被遮挡
+                                                        Log.e(TAG, "--------DetectOnPreview: 嘴巴被遮挡"+occlusion.getDouble("mouth"));
+
+                                                        occlusion.getDouble("left_cheek"); //左脸颊被遮挡
+                                                        Log.e(TAG, "--------DetectOnPreview: 左脸颊被遮挡"+occlusion.getDouble("left_cheek"));
+
+                                                        occlusion.getDouble("right_cheek"); //右脸颊被遮挡
+                                                        Log.e(TAG, "--------DetectOnPreview: 右脸颊被遮挡"+occlusion.getDouble("right_cheek"));
+
+                                                        occlusion.getDouble("chin_contour"); //下巴被遮挡
+                                                        Log.e(TAG, "--------DetectOnPreview: 下巴被遮挡"+occlusion.getDouble("chin_contour"));
+
+                                                        if(quality.getDouble("blur") > 0.4)
+                                                        {
+                                                            textView.setText("画面模糊");
+                                                            flag = false;
+                                                        }
+                                                        else if(quality.getDouble("completeness") != 1)
+                                                        {
+                                                            textView.setText("人脸不完整");
+                                                            flag = false;
+                                                        }
+                                                        else if(angle.getDouble("pitch") > 20 || angle.getDouble("roll") > 20 || angle.getDouble("yaw")>20)
+                                                        {
+                                                            textView.setText("请勿露出正脸");
+                                                            flag = false;
+                                                        }
+                                                        else if(location.getDouble("width")<100 || location.getDouble("height") <100)
+                                                        {
+                                                            textView.setText("人脸面积过小");
+                                                            flag = false;
+                                                        }
+                                                        else if(location.getDouble("width")>350 || location.getDouble("height") >350)
+                                                        {
+                                                            textView.setText("人脸面积过大");
+                                                            flag = false;
+                                                        }
+                                                        else if(quality.getInt("illumination")<100)
+                                                        {
+                                                            textView.setText("环境过暗");
+                                                            flag = false;
+                                                        }
+                                                        else if(occlusion.getDouble("left_eye")>0.6)
+                                                        {
+                                                            textView.setText("请勿遮挡左眼");
+                                                            flag = false;
+                                                        }
+                                                        else if(occlusion.getDouble("right_eye")>0.6)
+                                                        {
+                                                            textView.setText("请勿遮挡右眼");
+                                                            flag = false;
+                                                        }
+                                                        else if(occlusion.getDouble("nose")>0.7)
+                                                        {
+                                                            textView.setText("请勿遮挡鼻子");
+                                                            flag = false;
+                                                        }
+                                                        else if(occlusion.getDouble("mouth")>0.7)
+                                                        {
+                                                            textView.setText("请勿遮挡嘴巴");
+                                                            flag = false;
+                                                        }
+                                                        else if(occlusion.getDouble("left_check")>0.8)
+                                                        {
+                                                            textView.setText("请勿遮挡脸颊");
+                                                            flag = false;
+                                                        }
+                                                        else if(occlusion.getDouble("right_check")>0.8)
+                                                        {
+                                                            textView.setText("请勿遮挡脸颊");
+                                                            flag = false;
+                                                        }
+                                                        else if(occlusion.getDouble("chin_contour")>0.6)
+                                                        {
+                                                            textView.setText("请勿遮挡下巴");
+                                                            flag = false;
+                                                        }
+                                                        else {
+
+                                                        }
+                                                    }catch (Exception e){}
+                                                    Log.e(TAG, "----------run: 这是底部");
+                                                    if(flag == true)
+                                                    {
+                                                        detectResult = true;
+                                                        Log.e(TAG, "---------run: 检测通过");
+                                                    }
+
+                                                    //开始人脸注册
+                                                    if(detectResult == true)
+                                                    {
+                                                        Log.e(TAG, "--------run: 开始正式注册" );
+                                                        JSONObject addUserJson = PayHttpUtils.post("http://47.107.248.227:8080/Aipface/addUser",addUser.toString(),null,null);
+                                                        Log.e(TAG,"--------addUserJson"+addUserJson.toString());
+                                                        if(addUserJson != null)
+                                                        {
+                                                            try {
+                                                                addUserJson.getString("face_token");
+                                                                if(!addUserJson.getString("face_token").equals("") || addUserJson.getString("face_token")!=null){
+                                                                    addUserResult = true;
+                                                                    JSONObject database =PayHttpUtils.post("http://47.107.248.227:8080/android/User/updataUserPerfectMesaage",UserDataBase.toString(),null,null);
+                                                                    if(database.getString("flag").equals("1")) {
+                                                                        ToastDiag.warnDiag(PreviewActivity.this, "恭喜你注册人脸成功");
+                                                                        onBackPressed();
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        detectResult = false;
+                                                                    }
+                                                                }
+                                                            }catch (Exception e){}
+                                                        }
+                                                        else {
+                                                            showToast("addUserJson为空");
+                                                        }
+                                                    }
+                                                }//detect
+                                                else{
+                                                    showToast("detect系统错误，请稍后再试");
                                                     detectstatus = false;
                                                 }
-                                                else if((Integer)detectJson.get("completeness") != 1)
-                                                {
-                                                    autoCompleteTextView.setText("请把脸部全部移入相框内");
-                                                    autoCompleteTextView.setTextColor(Color.parseColor("#ffff00"));
-                                                    detectstatus = false;
-                                                }
-                                                else if((Integer)angle.get("pitch") > 20 || (Integer)angle.get("roll") > 20 || (Integer)angle.get("yaw")>20)
-                                                {
-                                                    autoCompleteTextView.setText("请将正脸移入框内");
-                                                    autoCompleteTextView.setTextColor(Color.parseColor("#ffff00"));
-                                                    detectstatus = false;
-                                                }
-                                                else if((Integer)location.get("width")<100 || (Integer)location.get("height") <100)
-                                                {
-                                                    autoCompleteTextView.setText("请将脸靠近相机");
-                                                    autoCompleteTextView.setTextColor(Color.parseColor("#ffff00"));
-                                                    detectstatus = false;
-                                                }
-                                                else if((Integer)location.get("width")>200 || (Integer)location.get("height") >200)
-                                                {
-                                                    autoCompleteTextView.setText("请不要离相机这么近");
-                                                    autoCompleteTextView.setTextColor(Color.parseColor("#ffff00"));
-                                                    detectstatus = false;
-                                                }
-                                                else if((Integer)quality.get("illumination")<100)
-                                                {
-                                                    autoCompleteTextView.setText("请在光源充足的地方进行");
-                                                    autoCompleteTextView.setTextColor(Color.parseColor("#ffff00"));
-                                                    detectstatus = false;
-                                                }
-                                                else if((Integer)occlusion.get("left_eye")>0.6)
-                                                {
-                                                    autoCompleteTextView.setText("请勿遮挡左眼");
-                                                    autoCompleteTextView.setTextColor(Color.parseColor("#ffff00"));
-                                                    detectstatus = false;
-                                                }
-                                                else if((Integer)occlusion.get("right_eye")>0.6)
-                                                {
-                                                    autoCompleteTextView.setText("请勿遮挡右眼");
-                                                    autoCompleteTextView.setTextColor(Color.parseColor("#ffff00"));
-                                                    detectstatus = false;
-                                                }
-                                                else if((Integer)occlusion.get("nose")>0.7)
-                                                {
-                                                    autoCompleteTextView.setText("请勿遮挡鼻子");
-                                                    autoCompleteTextView.setTextColor(Color.parseColor("#ffff00"));
-                                                    detectstatus = false;
-                                                }
-                                                else if((Integer)occlusion.get("mouth")>0.7)
-                                                {
-                                                    autoCompleteTextView.setText("请勿遮挡嘴巴");
-                                                    autoCompleteTextView.setTextColor(Color.parseColor("#ffff00"));
-                                                    detectstatus = false;
-                                                }
-                                                else if((Integer)occlusion.get("left_check")>0.8)
-                                                {
-                                                    autoCompleteTextView.setText("请勿遮挡左脸颊");
-                                                    autoCompleteTextView.setTextColor(Color.parseColor("#ffff00"));
-                                                    detectstatus = false;
-                                                }
-                                                else if((Integer)occlusion.get("right_check")>0.8)
-                                                {
-                                                    autoCompleteTextView.setText("请勿遮挡右脸颊");
-                                                    autoCompleteTextView.setTextColor(Color.parseColor("#ffff00"));
-                                                    detectstatus = false;
-                                                }
-                                                else if((Integer)occlusion.get("chin_contour")>0.6)
-                                                {
-                                                    autoCompleteTextView.setText("请勿遮挡下巴");
-                                                    autoCompleteTextView.setTextColor(Color.parseColor("#ffff00"));
-                                                    detectstatus = false;
-                                                }
-                                                else {
-                                                    detectResult = true;
-                                                }
-                                            }catch (Exception e){}
-                                        }//detect
+                                            }
+                                        }).start();
+
                                 }//图片转换
                                 //卡帧判断
-                                if(detectstatus) {
+                                if(detectResult == false) {
+                                    detectstatus = false;
                                     pauseFrame = 1;
-                                }
-                                else {
-                                    pauseFrame = pauseFrame + 1;
                                 }
                             }
                             else if(pauseFrame == 25){
@@ -402,7 +477,7 @@ public class PreviewActivity extends AppCompatActivity implements ViewTreeObserv
                                 pauseFrame = pauseFrame + 1;
                             }
                         }
-                        else if (faceLivenessInfoList.get(i).getLiveness()==0)
+                        else if (faceLivenessInfoList.get(i).getLiveness()==0 && detectstatus==false)
                         {
                             autoCompleteTextView.setText("活体检测未通过");
                             autoCompleteTextView.setTextColor(Color.parseColor("#ff0000"));
@@ -484,46 +559,5 @@ public class PreviewActivity extends AppCompatActivity implements ViewTreeObserv
             toast.setText(s);
             toast.show();
         }
-    }
-
-
-
-    public class AipfaceTask extends AsyncTask<Void, Void, Boolean>{
-
-        private final JSONObject json;
-        private final String url;
-        private final String classname;
-
-        AipfaceTask(String url,JSONObject json,String classname) {
-            this.json = json;
-            this.url=url;
-            this.classname = classname;
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... voids) {
-            // TODO: attempt authentication against a network service.
-            try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
-            }
-            //String users="[{\"username\":"+mNumberView.getText().toString()+",\"password\":"+mPasswordView.getText().toString()+"}]";
-            Log.e("-------***---json---",json.toString());
-            PayHttpUtils httpUtils = new PayHttpUtils();
-            JSONObject result = httpUtils.post(url,json.toString(),null,null);
-            if(classname == "detect")
-            {
-                detectJson = result;
-            }
-            else if(classname == ""){
-
-            }
-            // TODO: register the new account here.
-            return false;
-        }
-
-
     }
 }

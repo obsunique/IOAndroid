@@ -14,7 +14,7 @@ import com.example.cc.iocontrolapplication.R;
  */
 
 public class ToastDiag{
-    public static void warnDiag(Context context, String message){
+    public static void warnDiag(final Context context, String message){
         AlertDialog.Builder alert = new AlertDialog.Builder(context)
                 .setTitle("提示")//标题
                 .setMessage(message)//内容

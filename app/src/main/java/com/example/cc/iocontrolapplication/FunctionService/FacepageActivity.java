@@ -13,6 +13,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.cc.iocontrolapplication.R;
+import com.example.cc.iocontrolapplication.faceactivity.faceRegistActivity;
+import com.example.cc.iocontrolapplication.utils.SharedPrefUtility;
+import com.example.cc.iocontrolapplication.utils.ToastDiag;
 
 /**
  * Created by cc on 2018/12/18.
@@ -21,8 +24,8 @@ import com.example.cc.iocontrolapplication.R;
 public class FacepageActivity extends AppCompatActivity implements View.OnClickListener{
 
     private ActionBar actionBar;
-    private ImageView backimageView;
-    private TextView titleText,serveText;
+    private ImageView backimageView,icon;
+    private TextView titleText,serveText,Face_value;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -48,12 +51,16 @@ public class FacepageActivity extends AppCompatActivity implements View.OnClickL
         backimageView=(ImageView) findViewById(R.id.actionbar_edit_button);
         titleText=(TextView) findViewById(R.id.actionbar_edit_title);
         serveText=(TextView)findViewById(R.id.actionbar_edit_serve);
+        Face_value=(TextView)findViewById(R.id.Face_value);
+        icon = (ImageView) findViewById(R.id.icon);
         serveText.setVisibility(View.GONE);
         titleText.setText("人脸识别");
     }
 
     public void initViewLister(){
         backimageView.setOnClickListener(this);
+        Face_value.setOnClickListener(this);
+        icon.setOnClickListener(this);
     }
 
     @Override
@@ -62,6 +69,18 @@ public class FacepageActivity extends AppCompatActivity implements View.OnClickL
             case R.id.actionbar_edit_button:
                 onBackPressed();
                 break;
+            case R.id.Face_value:
+                if(SharedPrefUtility.UserIdCard.equals("") || SharedPrefUtility.UserIdCard == null)
+                {
+                    ToastDiag.warnDiag(FacepageActivity.this,"您还未进行实名注册，请前往进行实名注册");
+                }
+                else {
+                    Intent intent = new Intent();
+                    intent.setClass(FacepageActivity.this, faceRegistActivity.class);
+                    intent.putExtra("userid", SharedPrefUtility.UserId.toString());
+                    intent.putExtra("username", SharedPrefUtility.UserName.toString());
+                    startActivity(intent);
+                }
             default:
                 break;
         }

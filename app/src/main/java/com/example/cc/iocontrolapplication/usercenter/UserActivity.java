@@ -230,6 +230,8 @@ public class UserActivity extends Activity implements View.OnClickListener {
                 }else
                     if (useridcardValue.getText().toString().equals("已实名")) {
                         intent.setClass(UserActivity.this, PreviewActivity.class);
+                        intent.putExtra("userid",userid.toString());
+                        intent.putExtra("username",usernameValue.getText().toString());
                         startActivity(intent);
                     } else {
                         ToastDiag.Toast(UserActivity.this, "请前往实名认证");
