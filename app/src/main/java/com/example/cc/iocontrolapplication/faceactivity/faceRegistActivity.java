@@ -82,6 +82,8 @@ public class faceRegistActivity extends AppCompatActivity implements ViewTreeObs
     private String userid;
     private String username;
 
+    private int resultCode = 0;
+
     private static final int ACTION_REQUEST_PERMISSIONS = 0x001;
     /**
      * 所需的所有权限信息
@@ -139,7 +141,7 @@ public class faceRegistActivity extends AppCompatActivity implements ViewTreeObs
     @Override
     public void onBackPressed() {
         Intent intent=new Intent();
-        setResult(0,intent);
+        setResult(resultCode,intent);
         if (cameraHelper != null) {
             cameraHelper.release();
             cameraHelper = null;
@@ -419,10 +421,19 @@ public class faceRegistActivity extends AppCompatActivity implements ViewTreeObs
                                                     if(searchJson != null)
                                                     {
                                                         try {
-                                                            searchJson.get("face_token");
-                                                            if(searchJson.get("face_token").equals("") || searchJson.get("face_token")!=null){
+                                                            searchJson = searchJson.getJSONObject("result");
+                                                            JSONArray array = searchJson.getJSONArray("user_list");
+                                                            searchJson = array.getJSONObject(0);
+                                                            searchJson.getDouble("score");
+
+                                                            if(searchJson.getDouble("score")> 97){
                                                                 addUserResult = true;
-                                                                showToast("注册成功，稍后返回页面");
+                                                                resultCode = 8;
+                                                                onBackPressed();
+                                                            }
+                                                            else
+                                                            {
+                                                                resultCode = 5;
                                                                 onBackPressed();
                                                             }
                                                         }catch (Exception e){}

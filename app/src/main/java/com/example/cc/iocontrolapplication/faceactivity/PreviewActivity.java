@@ -9,7 +9,6 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.hardware.Camera;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -19,15 +18,12 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
-import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 
 import com.arcsoft.face.ErrorInfo;
 import com.arcsoft.face.FaceEngine;
@@ -44,21 +40,15 @@ import com.example.cc.iocontrolapplication.faceutil.ImageUtil;
 import com.example.cc.iocontrolapplication.faceutil.camera.CameraHelper;
 import com.example.cc.iocontrolapplication.faceutil.camera.CameraListener;
 import com.example.cc.iocontrolapplication.facewidget.FaceRectView;
-import com.example.cc.iocontrolapplication.login.ForgetActivity;
-import com.example.cc.iocontrolapplication.main.IOIndex;
-import com.example.cc.iocontrolapplication.usercenter.UserActivity;
 import com.example.cc.iocontrolapplication.utils.ImgUtil;
 import com.example.cc.iocontrolapplication.utils.PayHttpUtils;
-import com.example.cc.iocontrolapplication.utils.ToastDiag;
-
+import com.example.cc.iocontrolapplication.utils.SharedPrefUtility;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.security.auth.login.LoginException;
 
 
 public class PreviewActivity extends AppCompatActivity implements ViewTreeObserver.OnGlobalLayoutListener{
@@ -88,6 +78,8 @@ public class PreviewActivity extends AppCompatActivity implements ViewTreeObserv
 
     private String userid;
     private String username;
+
+    private int resultCode = 0;
 
 
     private static final int ACTION_REQUEST_PERMISSIONS = 0x001;
@@ -255,10 +247,11 @@ public class PreviewActivity extends AppCompatActivity implements ViewTreeObserv
                             if(pauseFrame == 0)
                             {
                                 Log.i(TAG, "--------onPreview: "+pauseFrame+"     detectstatus"+detectstatus);
+                                pauseFrame = 1;
+                                for(int time=0;time<10000;time++);
+                                Log.e(TAG, "onPreview: 暂停" );
                                 if(detectstatus == false) {
                                 //图片转换
-
-                                pauseFrame = 1;
                                 detectstatus = true;
                                 Bitmap bitmap = ImageUtil.nv21ToBitmap(nv21,previewSize.width,previewSize.height,PreviewActivity.this);
                                 bitmap = ImageUtil.rotaingImageView(270,bitmap);
@@ -278,11 +271,13 @@ public class PreviewActivity extends AppCompatActivity implements ViewTreeObserv
                                             addUser.put("user",userid);
                                             addUser.put("userinfo",username);
                                         }catch (Exception e){}
+                                    Log.e(TAG, "onPreview: "+userid);
+                                    Log.e(TAG, "onPreview: "+username );
 
                                         final JSONObject UserDataBase = new JSONObject();
                                         try{
-                                            addUser.put("userid",userid);
-                                            addUser.put("userfaceimage","have");
+                                            UserDataBase.put("userid",userid);
+                                            UserDataBase.put("userfaceimage","have");
                                         }catch (Exception e){}
 
                                         new Thread(new Runnable() {
@@ -363,7 +358,7 @@ public class PreviewActivity extends AppCompatActivity implements ViewTreeObserv
                                                         }
                                                         else if(angle.getDouble("pitch") > 20 || angle.getDouble("roll") > 20 || angle.getDouble("yaw")>20)
                                                         {
-                                                            textView.setText("请勿露出正脸");
+                                                            textView.setText("请露出正脸");
                                                             flag = false;
                                                         }
                                                         else if(location.getDouble("width")<100 || location.getDouble("height") <100)
@@ -425,8 +420,8 @@ public class PreviewActivity extends AppCompatActivity implements ViewTreeObserv
                                                     {
                                                         detectResult = true;
                                                         Log.e(TAG, "---------run: 检测通过");
+                                                        textView.setText("");
                                                     }
-
                                                     //开始人脸注册
                                                     if(detectResult == true)
                                                     {
@@ -436,18 +431,27 @@ public class PreviewActivity extends AppCompatActivity implements ViewTreeObserv
                                                         if(addUserJson != null)
                                                         {
                                                             try {
-                                                                addUserJson.getString("face_token");
-                                                                if(!addUserJson.getString("face_token").equals("") || addUserJson.getString("face_token")!=null){
+                                                                addUserJson.getString("error_msg");
+                                                                Log.e(TAG, "------error_msg: "+addUserJson.getString("error_msg"));
+                                                                if(addUserJson.getString("error_msg").equals("SUCCESS")){
                                                                     addUserResult = true;
+                                                                    Log.e(TAG, "------我进来了: "+addUserJson.getString("error_msg"));
                                                                     JSONObject database =PayHttpUtils.post("http://47.107.248.227:8080/android/User/updataUserPerfectMesaage",UserDataBase.toString(),null,null);
+                                                                    Log.e(TAG, "------我进来了: database"+ database.toString());
                                                                     if(database.getString("flag").equals("1")) {
-                                                                        ToastDiag.warnDiag(PreviewActivity.this, "恭喜你注册人脸成功");
+                                                                        Log.e(TAG, "------又又又又又我进来了: database"+database.getString("flag"));
+                                                                        SharedPrefUtility.setParam(SharedPrefUtility.UserFace,"已开启");
+                                                                        resultCode = 1;
                                                                         onBackPressed();
+                                                                        Log.e(TAG, "------我走了: database");
                                                                     }
                                                                     else
                                                                     {
                                                                         detectResult = false;
                                                                     }
+                                                                }
+                                                                else {
+                                                                    detectResult = false;
                                                                 }
                                                             }catch (Exception e){}
                                                         }

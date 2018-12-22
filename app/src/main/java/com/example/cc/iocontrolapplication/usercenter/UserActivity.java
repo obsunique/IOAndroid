@@ -25,9 +25,6 @@ import com.example.cc.iocontrolapplication.utils.ToastDiag;
 
 import org.json.JSONObject;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 /**
  * Created by cc on 2018/12/13.
  */
@@ -92,7 +89,7 @@ public class UserActivity extends Activity implements View.OnClickListener {
         refreshData();
     }
 
-//导入数据到SP
+    //导入数据到SP
     public void inDate(){
         try{
             JSONObject userperfectWithBLOBs=reultJson.getJSONObject("userperfectWithBLOBs");
@@ -237,7 +234,7 @@ public class UserActivity extends Activity implements View.OnClickListener {
                     ToastDiag.Toast(UserActivity.this,"请连接网络");
                 break;
             case R.id.userphonenumber_button:
-                intoEditPage(3,"userphone",userphonenumberValue.getText().toString());
+                intoEditPage(3,"userphone",userphone);
                 break;
             case R.id.useremailnumber_button:
                 ToastDiag.Toast(UserActivity.this,"不想暴露信息，用手机吧");
@@ -247,8 +244,8 @@ public class UserActivity extends Activity implements View.OnClickListener {
                 intoEditPage(4,"useremail",useremailnumberValue.getText().toString());*/
                 break;
             case R.id.isAutoPay_button:
-                intent.setClass(UserActivity.this, AvatarChoose.class);
-                startActivity(intent);
+                //sss
+                ToastDiag.Toast(UserActivity.this,"免密支付暂不支持");
                 break;
             case R.id.Face_button:
                 //打开人脸识别
@@ -259,7 +256,7 @@ public class UserActivity extends Activity implements View.OnClickListener {
                         intent.setClass(UserActivity.this, PreviewActivity.class);
                         intent.putExtra("userid",userid.toString());
                         intent.putExtra("username",usernameValue.getText().toString());
-                        startActivity(intent);
+                        getParent().startActivityForResult(intent, 5);
                     } else {
                         ToastDiag.Toast(UserActivity.this, "请前往实名认证");
                     }
@@ -437,10 +434,10 @@ public class UserActivity extends Activity implements View.OnClickListener {
                     image = bundle.getParcelable("data");
                     ChooseImg=1;
                     //设置到ImageView上
-
+                    userimageValue.setImageBitmap(image);
                     //也可以进行一些保存、压缩等操作后上传
                     // String path = saveImage("crop", image);
-
+/*
                     pushTask=null;
                     JSONObject json=new JSONObject();
                     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");//获取当前时间
@@ -461,11 +458,16 @@ public class UserActivity extends Activity implements View.OnClickListener {
                     }
                     String url="http://47.107.248.227:8080/android/uploadPicture";
                     pushTask=new PushTask(url,json);
-                    pushTask.execute((Void)null);
+                    pushTask.execute((Void)null);*/
                 }
                 break;
             case 4:
                 refreshData();
+                break;
+            case 5:
+                refreshData();
+                if(resultCode == 1)
+                ToastDiag.warnDiag(UserActivity.this,"人脸注册成功");
                 break;
         }
     }

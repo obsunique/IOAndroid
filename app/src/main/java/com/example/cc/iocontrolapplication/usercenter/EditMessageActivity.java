@@ -28,6 +28,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.cc.iocontrolapplication.R;
+import com.example.cc.iocontrolapplication.utils.CountDownTimerUtils;
 import com.example.cc.iocontrolapplication.utils.JudgeUntils;
 import com.example.cc.iocontrolapplication.utils.PayHttpUtils;
 import com.example.cc.iocontrolapplication.utils.SharedPrefUtility;
@@ -250,10 +251,10 @@ public class EditMessageActivity extends AppCompatActivity implements View.OnCli
                 onBackPressed();
                 break;
             case R.id.actionbar_edit_serve:
-                if (serveText.getText().toString().equals("保存"))
+                if (serveText.getText().toString().equals("保存")){
                     if((editId==1&&isContinue(editText))||(editId!=1&&isContinue(editTextSecond)))
                         push();
-                    else if(serveText.getText().toString().equals("下一步")){
+                } else if(serveText.getText().toString().equals("下一步")){
                         if(editId==3){
                             if(isContinue(editText)) {
                                 if (isCode()) {
@@ -350,19 +351,26 @@ private void setEditTextEnable(EditText editText,boolean mode){
 
     //发送验证码
     public void send() {
+        CountDownTimerUtils countDownTimerUtils=new CountDownTimerUtils(editButton,30000,1000);
+        countDownTimerUtils.start();
         if (pushTask != null) {
             return;
         }
         String editOne = editText.getText().toString();
-        if ((editId == 3 && isContinue(editText) || (editId == 4 && JudgeUntils.isEmailValid(editOne)))) {
+        Log.e("--------editOne-------",editOne);
+        if (editId == 3 || (editId == 4 && JudgeUntils.isEmailValid(editOne))) {
+            Log.e("-----我来了--",editId+" "+jsonname);
             JSONObject json = new JSONObject();
             //手机密码登录
             String url = "";
-            if (editId == 2)
-                url = "http://47.107.248.227:8080/android/Login/sendCode";
+            if (editId == 3)
+                url="http://47.107.248.227:8080/android/Login/sendCode";
             try {
-                json.put(jsonname, editOne);
+                Log.e("",url+" "+ jsonname+" "+editOne);
+                json.put(jsonname, editOne+"");
             } catch (Exception e) {
+                Log.e("-----******----","系统错误");
+                return;
             }
 
             pushTask = new PushTask(url, json);
@@ -385,7 +393,7 @@ private void setEditTextEnable(EditText editText,boolean mode){
                 json.put(jsonname,editOne);
             else if (editId==2) {
                 json.put(jsonname,editOne);
-                json.put("useridcard", editsecond);
+                json.put("useridCard", editsecond);
             }else
                 json.put(jsonname,editsecond);
         }catch (Exception e) {}
@@ -436,8 +444,9 @@ private void setEditTextEnable(EditText editText,boolean mode){
                 return false;
             }
             Log.e("-----*******----",json.toString());
-            PayHttpUtils httpUtils = new PayHttpUtils();
-            JSONObject result = httpUtils.post(url,json.toString(),null,null);
+
+            JSONObject result = PayHttpUtils.post(url,json.toString(),null,null);
+            Log.e("------",result+"");
             if(result!=null) {
                 Log.e("-----*******----",result.toString());
                 try {

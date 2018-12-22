@@ -21,11 +21,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.cc.iocontrolapplication.R;
-import com.example.cc.iocontrolapplication.main.IOIndex;
 import com.example.cc.iocontrolapplication.utils.CountDownTimerUtils;
 import com.example.cc.iocontrolapplication.utils.JudgeUntils;
 import com.example.cc.iocontrolapplication.utils.PayHttpUtils;
-import com.example.cc.iocontrolapplication.utils.SharedPrefUtility;
 
 import org.json.JSONObject;
 
@@ -175,12 +173,8 @@ public class ForgetActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent=new Intent();
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
-                Integer userid=12;
-                SharedPrefUtility.oncreate(ForgetActivity.this);
-                SharedPrefUtility.setParam(SharedPrefUtility.UserId,userid);
-                SharedPrefUtility.setParam( SharedPrefUtility.IS_LOGIN, (String)"true");
-                intent.setClass(ForgetActivity.this,IOIndex.class);
+
+                intent.setClass(ForgetActivity.this,LoginActivity.class);
                 startActivity(intent);
             }
         });

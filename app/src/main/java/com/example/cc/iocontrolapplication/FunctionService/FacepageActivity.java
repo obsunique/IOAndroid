@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -70,7 +71,12 @@ public class FacepageActivity extends AppCompatActivity implements View.OnClickL
                 onBackPressed();
                 break;
             case R.id.Face_value:
-                if(SharedPrefUtility.UserIdCard.equals("") || SharedPrefUtility.UserIdCard == null)
+                String userface=(String) SharedPrefUtility.getParam(FacepageActivity.this,SharedPrefUtility.UserFace,"");
+                if(userface.equals("") || userface == null)
+                {
+                    ToastDiag.warnDiag(FacepageActivity.this,"您还未进行实名注册，请前往进行实名注册");
+                }
+                else if( userface.equals("") || userface == null)
                 {
                     ToastDiag.warnDiag(FacepageActivity.this,"您还未进行实名注册，请前往进行实名注册");
                 }
@@ -79,7 +85,7 @@ public class FacepageActivity extends AppCompatActivity implements View.OnClickL
                     intent.setClass(FacepageActivity.this, faceRegistActivity.class);
                     intent.putExtra("userid", SharedPrefUtility.UserId.toString());
                     intent.putExtra("username", SharedPrefUtility.UserName.toString());
-                    startActivity(intent);
+                    startActivityForResult(intent, 6);
                 }
             default:
                 break;
@@ -97,5 +103,17 @@ public class FacepageActivity extends AppCompatActivity implements View.OnClickL
         Intent intent=new Intent();
         setResult(0,intent);
         finish();
+    }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        Log.e("----*1----",requestCode+"我来了");
+        switch (requestCode) {
+            case 6:
+                if(resultCode ==8)
+                ToastDiag.warnDiag(FacepageActivity.this,"恭喜您验证通过，给小主人请安了");
+                else if (resultCode == 5)
+                    ToastDiag.warnDiag(FacepageActivity.this,"验证并未通过");
+                break;
+        }
     }
 }

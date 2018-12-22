@@ -225,6 +225,7 @@ public class IOIndex extends Activity implements
         UserActivity sActivity = (UserActivity) manager.getActivity("third");
         Log.e("----******----",requestCode+"我是谁"+resultCode);
         sActivity.handleActivityResult(requestCode, resultCode, data);
+
     }
 
 }
